@@ -49,7 +49,7 @@ A brief description of what the project does, why it exists, and its core goals.
 - **Frontend**: Next.js, React, Tailwind CSS, Zustand  
 - **Backend**: Node.js, Express.js / Next.js API Routes  
 - **Database**: PostgreSQL + Prisma ORM  
-- **Auth**: NextAuth.js / Better-Auth  
+- **Auth**: Better-Auth  
 - **Charts**: Recharts  
 - **Deployment**: Vercel (Frontend), Railway/Render (Backend + DB)  
 
