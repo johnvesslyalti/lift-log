@@ -1,36 +1,143 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏋️ LiftLog
 
-## Getting Started
+LiftLog is a fitness and gym progress tracking web application that helps users log workouts, track progress, and stay motivated with streaks and insights.
 
-First, run the development server:
+---
 
+## 📖 Project Overview
+A brief description of what the project does, why it exists, and its core goals.
+
+---
+
+## 🚀 Features
+- Add customized workout routines  
+- Track workout sessions (start, end, duration)  
+- Monitor streaks for consistency  
+- Add and update height/weight  
+- Track weight gain/loss over time  
+- Calculate average workout time  
+- Estimate calories burned  
+- Dashboard with insights & analytics  
+
+---
+
+## 🗄️ Database Design
+**Entities & Relationships**  
+- Users  
+- Workouts  
+- Sessions  
+- Progress
+
+---
+
+## ⚙️ Backend Design
+- API Endpoints  
+- Authentication & Authorization  
+- Data Validation  
+- Error Handling  
+
+---
+
+## 🎨 Frontend Design
+- UI/UX approach  
+- Components used (Workout Log, Dashboard, Analytics)  
+- State management strategy  
+
+---
+
+## 🛠️ Tech Stack
+- **Frontend**: Next.js, React, Tailwind CSS, Zustand  
+- **Backend**: Node.js, Express.js / Next.js API Routes  
+- **Database**: PostgreSQL + Prisma ORM  
+- **Auth**: NextAuth.js / Better-Auth  
+- **Charts**: Recharts  
+- **Deployment**: Vercel (Frontend), Railway/Render (Backend + DB)  
+
+---
+
+## 🧑‍💻 Project Workflow
+1. Design the Database  
+2. Build the Backend APIs  
+3. Develop the Frontend UI  
+4. Connect APIs with UI  
+5. Deploy & Test  
+
+---
+
+## 🔐 Authentication & Security
+- JWT/Session-based authentication  
+- Password hashing (bcrypt)  
+- Role-based access (if any)  
+
+---
+
+## 📊 Analytics & Tracking
+- Weekly/Monthly workout summary  
+- Weight progress tracking  
+- Calories burned reports  
+
+---
+
+## 📦 Installation & Setup
 ```bash
+# Clone the repository
+git clone https://github.com/your-username/liftlog.git
+
+# Navigate to project directory
+cd liftlog
+
+# Install dependencies
+npm install
+
+# Setup environment variables
+cp .env.example .env
+
+# Run the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+````
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📌 Usage Guide
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+* Register/Login to your account
+* Add your height & weight
+* Create a custom workout routine
+* Start/End workout sessions
+* Track progress via dashboard
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🔮 Future Enhancements
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+* AI-generated workout suggestions
+* Social sharing of streaks
+* Integration with wearables (Fitbit, Apple Watch)
+* Export reports (CSV/PDF)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🧾 License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This project is licensed under the MIT License.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🙌 Contributing
+
+Contributions are welcome!
+
+1. Fork the repo
+2. Create a new branch (`feature/your-feature`)
+3. Commit your changes
+4. Open a Pull Request
+
+---
+
+## 📧 Contact
+
+* **Author**: Johnvessly Alti
+* **Email**: [altijohnvessly@gmail.com](mailto:altijohnvessly@gmail.com)
+* **GitHub**: [johnvesslyalti](https://github.com/johnvesslyalti)
+* **Portfolio**: [johnvesslyalti.vercel.app](https://johnvesslyalti.vercel.app)
+* **LinkedIn**: [linkedin.com/in/johnvesslyalti](https://linkedin.com/in/johnvesslyalti)
