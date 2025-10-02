@@ -102,13 +102,13 @@ model Exercise {
 }
 
 model WorkoutSession {
-    id     Int @id @default(autoincrement())
-    user User @relation(fields: [userId], references: [id])
-    userId String
-    workout Workout @relation(fields: [workoutId], references: [id])
-    workoutId Int
-    startTime DateTime
-    endTime DateTime
+    id             Int      @id @default(autoincrement())
+    user           User     @relation(fields: [userId], references: [id])
+    userId         String
+    workout        Workout  @relation(fields: [workoutId], references: [id])
+    workoutId      Int
+    startTime      DateTime
+    endTime        DateTime
     caloriesBurned Float?
 
     createdAt DateTime @default(now())
@@ -116,12 +116,12 @@ model WorkoutSession {
 }
 
 model Progress {
-    id Int @id @default(autoincrement())
-    user User @relation(fields: [userId], references: [id])
-    userId String
-    date DateTime   @default(now())
-    weight Float?
-    streak Int
+    id        Int      @id @default(autoincrement())
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String
+    date      DateTime @default(now())
+    weight    Float?
+    streak    Int
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
