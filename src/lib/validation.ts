@@ -10,3 +10,10 @@ export const profileSchema = z.object({
     height: z.float32(),
     weight: z.float32()
 });
+
+export const exerciseSchema = z.object({
+    name: z.string(),
+    sets: z.int(),
+    reps: z.int(),
+    weight: z.float32().optional()
+})
