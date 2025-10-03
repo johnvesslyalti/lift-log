@@ -17,3 +17,8 @@ export const exerciseSchema = z.object({
     reps: z.int(),
     weight: z.float32().optional()
 })
+
+export const progressSchema = z.object({
+    streak:z.number().min(0),
+    weight: z.float32().optional()
+})
