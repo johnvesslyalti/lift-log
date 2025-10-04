@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ReactNode, useState } from "react";
-import { Menu, Home, Activity, Settings } from "lucide-react"; // Lucide icons
+import { Menu, Home, Activity} from "lucide-react"; // Lucide icons
 
 type SidebarLayoutProps = {
   children: ReactNode;
@@ -15,7 +15,6 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
   const menuItems = [
     { name: "Dashboard", href: "/dashboard", icon: <Home size={20} /> },
     { name: "Progress", href: "/progress", icon: <Activity size={20} /> },
-    { name: "Settings", href: "/settings", icon: <Settings size={20} /> },
   ];
 
   return (
@@ -24,7 +23,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
       <aside
         className={`p-4 transition-all duration-300 ${
           collapsed ? "w-20" : "w-64"
-        } flex flex-col`}
+        } flex flex-col border-r-white/50 border-[1px]`}
       >
         <div className="flex items-center gap-5">
           {/* Toggle button */}
@@ -52,6 +51,11 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
             </Link>
           ))}
         </nav>
+
+        <Link href={"/profile"} className="mt-auto flex items-center gap-3 p-2 rounded hover:bg-gray-700 transition-colors">
+          
+          Profile
+        </Link>
       </aside>
 
       {/* Main Content */}
