@@ -13,13 +13,6 @@ export default function Footer() {
           </span>
         </div>
 
-        {/* Links */}
-        <div className="flex space-x-6 mt-4 md:mt-0 text-sm text-muted-foreground">
-          <a href="/about" className="hover:text-primary transition">About</a>
-          <a href="/privacy" className="hover:text-primary transition">Privacy</a>
-          <a href="/terms" className="hover:text-primary transition">Terms</a>
-        </div>
-
         {/* Copyright */}
         <div className="mt-4 md:mt-0 text-sm text-muted-foreground">
           © {new Date().getFullYear()} Lift Log. All rights reserved.

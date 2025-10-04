@@ -1,7 +1,7 @@
-import Navbar from '@/components/navbar'
 import './globals.css'
 import Footer from '@/components/footer'
 import { ThemeProvider } from '../components/theme-provider'
+import ConditionalNavbar from '@/components/conditional-navbar'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 disableTransitionOnChange
                 >
                 <header>
-                    <Navbar />
+                    <ConditionalNavbar />
                 </header>
                 {children}
                 <footer>
