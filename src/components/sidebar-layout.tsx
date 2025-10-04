@@ -33,7 +33,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
           {/* Toggle button */}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="mb-6 p-2 rounded hover:bg-gray-700 self-start"
+            className="mb-6 p-2 rounded hover:bg-white/5 hover:border-rounded"
           >
             <Menu size={20} />
           </button>
@@ -48,7 +48,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 p-2 rounded hover:bg-gray-700 transition-colors`}
+              className={`flex items-center gap-3 p-3 rounded hover:bg-white/5 hover:border-rounded transition-colors`}
             >
               {item.icon}
               {!collapsed && <span>{item.name}</span>}
@@ -58,13 +58,13 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
 
         <Link
           href={"/profile"}
-          className="mt-auto flex items-center gap-3 p-2 rounded hover:bg-gray-700 transition-colors"
+          className="mt-auto flex items-center gap-3 p-2 rounded hover:bg-white/5 hover:border-rounded transition-colors"
         >
           <Avatar>
             <AvatarImage src={user?.image} />
             <AvatarFallback>{user?.name[1]}</AvatarFallback>
           </Avatar>
-          {!collapsed && <div>Profile</div>}
+          {!collapsed && <div>{user?.name}</div>}
         </Link>
       </aside>
 

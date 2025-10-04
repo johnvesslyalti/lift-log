@@ -7,6 +7,7 @@ interface User {
     image?: string,
     height?: number,
     weight?: number,
+    createdAt?: Date 
 }
 
 interface UserStore {
