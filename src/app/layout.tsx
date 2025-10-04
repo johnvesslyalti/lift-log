@@ -1,5 +1,4 @@
 import './globals.css'
-import Footer from '@/components/footer'
 import { ThemeProvider } from '../components/theme-provider'
 import ConditionalSidebar from '@/components/conditional-sidebar'
 
@@ -19,9 +18,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <ConditionalSidebar>
                     {children}
                 </ConditionalSidebar>
-                <footer>
-                    <Footer />
-                </footer>
                 </ThemeProvider>
             </body>
         </html>
