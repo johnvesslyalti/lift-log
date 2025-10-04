@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { ReactNode, useState } from "react";
-import { Menu, Home, Activity} from "lucide-react"; // Lucide icons
+import { Menu, Home, Activity } from "lucide-react"; // Lucide icons
+import { useUserStore } from "@/store/userStore";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 type SidebarLayoutProps = {
   children: ReactNode;
@@ -10,6 +12,8 @@ type SidebarLayoutProps = {
 
 export default function SidebarLayout({ children }: SidebarLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
+
+  const user = useUserStore((state) => state.user);
 
   // Menu items
   const menuItems = [
@@ -52,9 +56,15 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
           ))}
         </nav>
 
-        <Link href={"/profile"} className="mt-auto flex items-center gap-3 p-2 rounded hover:bg-gray-700 transition-colors">
-          
-          Profile
+        <Link
+          href={"/profile"}
+          className="mt-auto flex items-center gap-3 p-2 rounded hover:bg-gray-700 transition-colors"
+        >
+          <Avatar>
+            <AvatarImage src={user?.image} />
+            <AvatarFallback>{user?.name[1]}</AvatarFallback>
+          </Avatar>
+          {!collapsed && <div>Profile</div>}
         </Link>
       </aside>
 
