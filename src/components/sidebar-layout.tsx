@@ -62,7 +62,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
         >
           <Avatar>
             <AvatarImage src={user?.image} />
-            <AvatarFallback>{user?.name[1]}</AvatarFallback>
+            <AvatarFallback>{user?.name[0].toUpperCase()}</AvatarFallback>
           </Avatar>
           {!collapsed && <div>{user?.name}</div>}
         </Link>

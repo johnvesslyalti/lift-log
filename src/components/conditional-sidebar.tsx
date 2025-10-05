@@ -14,7 +14,9 @@ export default function ConditionalSidebar({ children }: { children: React.React
   const pathname = usePathname()
 
   // Only render after mount
-  if (!mounted || pathname === "/") return null
+  if (!mounted) return null
 
-  return <SidebarLayout>{children}</SidebarLayout>
+  return pathname === "/" ? (
+    <>{children}</> ) : (
+  <SidebarLayout>{children}</SidebarLayout>)
 }
