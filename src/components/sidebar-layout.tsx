@@ -37,7 +37,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
       <aside
         className={`p-4 transition-all duration-300 ${
           collapsed ? "w-20" : "w-64"
-        } flex flex-col border-r border-white/10`}
+        } flex flex-col border-r dark:border-white/10`}
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-6">

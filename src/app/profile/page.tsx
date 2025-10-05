@@ -1,5 +1,6 @@
 "use client";
 
+import HandleLogout from "@/components/handle-logout";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useUserStore } from "@/store/userStore";
 import Image from "next/image";
@@ -13,15 +14,15 @@ export default function Profile() {
     if (userFromStore) setUser(userFromStore);
   }, [userFromStore]);
 
-  if(!user) {
-    return <div>Loading...</div>
+  if (!user) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
   return (
-    <div className="p-5">
+    <div className="p-5 flex flex-col items-center">
+      {/* Profile Image */}
       <div className="flex items-center justify-center w-full p-5">
-        {/* Profile Image */}
-        {user?.image ? (
+        {user.image ? (
           <Image
             src={user.image}
             width={150}
@@ -31,23 +32,32 @@ export default function Profile() {
           />
         ) : (
           <div className="w-24 h-24 mb-4 flex items-center justify-center bg-gray-300 rounded-full text-3xl font-bold text-white">
-            {user?.name?.[0] ?? "U"}
+            {user.name?.[0] ?? "U"}
           </div>
         )}
       </div>
-      <div className="flex flex-col w-full items-center justify-center">
-        <div className="font-bold">{user.name}</div>
-        <div className="">{user.email}</div>
+
+      {/* User Info */}
+      <div className="flex flex-col items-center mb-5">
+        <div className="font-bold text-lg">{user.name}</div>
+        <div className="text-gray-600">{user.email}</div>
       </div>
-      <div className="flex items-center justify-center w-full gap-5 p-5">
-        <Card className="w-1/4">
-            <CardHeader>Height</CardHeader>
-            <CardContent>90</CardContent>
+
+      {/* Stats Cards */}
+      <div className="flex items-center justify-center gap-5 mb-5 w-full max-w-md">
+        <Card className="w-1/2">
+          <CardHeader>Height</CardHeader>
+          <CardContent>{user.height ?? "N/A"}</CardContent>
         </Card>
-        <Card className="w-1/4">
-            <CardHeader>Weight</CardHeader>
-            <CardContent>90</CardContent>
+        <Card className="w-1/2">
+          <CardHeader>Weight</CardHeader>
+          <CardContent>{user.weight ?? "N/A"}</CardContent>
         </Card>
+      </div>
+
+      {/* Logout Button */}
+      <div className="w-full flex justify-center">
+        <HandleLogout />
       </div>
     </div>
   );
