@@ -1,25 +1,27 @@
 "use client"
 
-import * as React from "react"
-import { LaptopMinimal, Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
-
+import { Sun, Moon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react"
 
 export function ModeToggle() {
-  const { setTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  // Prevent hydration mismatch
+  useEffect(() => setMounted(true), [])
+  if (!mounted) return null
+
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light")
+  }
 
   return (
-    <div className="flex gap-5">
-        <Button onClick={() => setTheme("system")}>
-            <LaptopMinimal />
-        </Button>
-        <Button onClick={() => setTheme("light")}>
-            <Sun />
-        </Button>
-        <Button onClick={() => setTheme("dark")}>
-            <Moon />
-        </Button>
-    </div>
+    <Button className="border-0" variant="outline" size="icon" onClick={toggleTheme}>
+      <Sun className="h-[1.2rem] w-[1.2rem] transition-all rotate-0 scale-100 dark:-rotate-90 dark:scale-0" />
+      <Moon className="absolute h-[1.2rem] w-[1.2rem] transition-all rotate-90 scale-0 dark:rotate-0 dark:scale-100" />
+      <span className="sr-only">Toggle theme</span>
+    </Button>
   )
 }

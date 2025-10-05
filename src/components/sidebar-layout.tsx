@@ -5,6 +5,7 @@ import { ReactNode, useState } from "react";
 import { Menu, Home, Activity } from "lucide-react"; // Lucide icons
 import { useUserStore } from "@/store/userStore";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { ModeToggle } from "./mode-toggle";
 
 type SidebarLayoutProps = {
   children: ReactNode;
@@ -29,7 +30,7 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
           collapsed ? "w-20" : "w-64"
         } flex flex-col border-r-white/50 border-[1px]`}
       >
-        <div className="flex items-center gap-5">
+        <div className="flex items-center justify-between">
           {/* Toggle button */}
           <button
             onClick={() => setCollapsed(!collapsed)}
@@ -40,6 +41,8 @@ export default function SidebarLayout({ children }: SidebarLayoutProps) {
 
           {/* Logo */}
           {!collapsed && <h1 className="text-xl font-bold mb-6">LiftLog</h1>}
+
+          {!collapsed && <div className="mb-6"><ModeToggle /></div>}
         </div>
 
         {/* Menu */}
