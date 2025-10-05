@@ -15,6 +15,7 @@ export const exerciseSchema = z.object({
     name: z.string(),
     sets: z.int(),
     reps: z.int(),
+    category: z.string(),
     weight: z.float32().optional()
 })
 
