@@ -1,5 +1,9 @@
 export default function Workouts() {
     return (
-        <div>This is Workouts</div>
+        <div>
+            <div>
+                
+            </div>
+        </div>
     )
 } 
