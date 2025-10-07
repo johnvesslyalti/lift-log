@@ -1,3 +1,4 @@
+import { handleError } from "@/components/error-handle";
 import { PrismaClient } from "@/generated/prisma";
 import { auth } from "@/lib/auth";
 import { exerciseSchema } from "@/lib/validation";
@@ -16,19 +17,14 @@ export async function GET() {
     );
 
   try {
-    const exercises = prisma.exercise.findMany({
+    const exercises = await prisma.exercise.findMany({
       where: { userId: session.user.id },
     });
 
     return NextResponse.json(exercises, { status: 200 });
   } catch (error: unknown) {
-    if (error instanceof ZodError) {
-      return NextResponse.json({ error: error.issues }, { status: 401 });
-    } else if (error instanceof Error) {
-      console.error(error.message);
-    } else {
-      console.error("unexpected error", error);
-    }
+    const err = handleError(error)
+    return NextResponse.json(err, { status: 500})
   }
 }
 

@@ -12,10 +12,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useWorkoutStore } from "@/store/workoutStrore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 
-export default function ExerciseModal() {
+interface ExerciseModalProps {
+    onsuccess?: () => void
+}
+
+export default function ExerciseModal({ onsuccess}: ExerciseModalProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [sets, setSets] = useState(0);
@@ -27,14 +31,14 @@ export default function ExerciseModal() {
 
   const { workoutId } = useWorkoutStore();
 
-  async function handleLogin() {
+  async function addExercise() {
     if (!name.trim()) return setMessage("Exercise name is required");
 
     setLoading(true);
     setMessage("");
 
     try {
-      const res = await fetch("api/exercise", {
+      const res = await fetch("/api/exercise", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, sets, reps, category, workoutId }),
@@ -47,6 +51,9 @@ export default function ExerciseModal() {
       setSets(0);
       setReps(0);
       setCategory("");
+
+      onsuccess?.();
+
       setTimeout(() => setOpen(false), 1000);
     } catch (err) {
       setMessage("Something went wrong");
@@ -119,7 +126,7 @@ export default function ExerciseModal() {
           )}
 
           <Button
-            onClick={handleLogin}
+            onClick={addExercise}
             disabled={loading}
             className="w-full bg-slate-800 text-white"
           >
