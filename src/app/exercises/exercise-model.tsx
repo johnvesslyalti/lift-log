@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useWorkoutStore } from "@/store/workoutStrore";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 
 interface ExerciseModalProps {

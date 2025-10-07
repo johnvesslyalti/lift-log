@@ -1,6 +1,6 @@
+import { PrismaClient } from "@/generated/prisma";
 import { auth } from "@/lib/auth";
 import { workoutSchema } from "@/lib/validation";
-import { PrismaClient } from "@prisma/client";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
@@ -14,11 +14,10 @@ export async function GET() {
 
   try {
     const workouts = await prisma.workout.findMany({
-        where: { userId: session.user.id },
+      where: { userId: session.user.id },
     });
 
-    return NextResponse.json(workouts, { status: 200 })
-
+    return NextResponse.json(workouts, { status: 200 });
   } catch (error: unknown) {
     if (error instanceof ZodError) {
       return NextResponse.json({ error: error.issues }, { status: 401 });
@@ -38,12 +37,22 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const validateData = workoutSchema.parse(body);
+    console.log("incoming body", body)
 
+    const validateData = workoutSchema.parse(body);
+    const { name, exercises } = validateData;
     await prisma.workout.create({
       data: {
-        userId: validateData.userId,
-        name: validateData.name,
+        userId: session.user.id,
+        name,
+        workoutExercises: {
+          create: exercises.map((exerciseId) => ({
+            exerciseId,
+          })),
+        },
+      },
+      include: {
+        workoutExercises: true,
       },
     });
 
@@ -56,6 +65,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.issues }, { status: 400 });
     } else if (error instanceof Error) {
       console.error(error.message);
+      return NextResponse.json({ error: error.message}, { status: 500 })
     } else {
       console.error("unexpected error", error);
     }

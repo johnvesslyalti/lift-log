@@ -1,8 +1,8 @@
 import z from "zod";
 
 export const workoutSchema = z.object({
-  userId: z.string().uuid({ message: "Invalid user", version: "v4" }),
   name: z.string(),
+  exercises: z.array(z.number()).nonempty("selected at least one exercise")
 });
 
 export const profileSchema = z.object({
