@@ -89,17 +89,28 @@ model Workout {
     updatedAt DateTime @updatedAt
 
     workoutSessions WorkoutSession[]
+    exercises       WorkoutExercise[]
+}
+
+model WorkoutExercise {
+    workoutId  Int
+    exerciseId Int
+    Workout    Workout  @relation(fields: [workoutId], references: [id])
+    Exercise   Exercise @relation(fields: [exerciseId], references: [id])
+
+    @@id([workoutId, exerciseId])
 }
 
 model Exercise {
-    id        Int     @id @default(autoincrement())
-    name      String
-    sets      Int
-    reps      Int
-    category  String
-    weight    Float?
-    user      User    @relation(fields: [userId], references: [id])
-    userId    String
+    id               Int               @id @default(autoincrement())
+    name             String
+    sets             Int
+    reps             Int
+    category         String
+    weight           Float?
+    user             User              @relation(fields: [userId], references: [id])
+    userId           String
+    workoutExercises WorkoutExercise[]
 }
 
 model WorkoutSession {
