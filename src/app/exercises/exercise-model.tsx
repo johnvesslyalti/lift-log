@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useWorkoutStore } from "@/store/workoutStrore";
 import { useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 
@@ -24,6 +25,8 @@ export default function ExerciseModal() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  const { workoutId } = useWorkoutStore();
+
   async function handleLogin() {
     if (!name.trim()) return setMessage("Exercise name is required");
 
@@ -34,7 +37,7 @@ export default function ExerciseModal() {
       const res = await fetch("api/exercise", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, sets, reps, category }),
+        body: JSON.stringify({ name, sets, reps, category, workoutId }),
       });
 
       if (!res.ok) throw new Error("Failed to save");
@@ -102,8 +105,8 @@ export default function ExerciseModal() {
               <div>
                 <Label>Category</Label>
                 <Input
-                  type="number"
-                  placeholder="3"
+                  type="text"
+                  placeholder="Pull"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 />
