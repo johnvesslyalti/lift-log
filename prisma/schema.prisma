@@ -88,8 +88,8 @@ model Workout {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    workoutSessions WorkoutSession[]
-    exercises       WorkoutExercise[]
+    workoutSessions  WorkoutSession[]
+    workoutExercises WorkoutExercise[]
 }
 
 model WorkoutExercise {
