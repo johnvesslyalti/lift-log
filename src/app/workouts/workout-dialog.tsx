@@ -56,6 +56,8 @@ export default function WorkoutDialog() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: name, exercises: selectedExercises }),
       });
+      setName("");
+      setSelectedExercises([]);
     } catch (error) {
       console.error(error);
     }
@@ -64,23 +66,28 @@ export default function WorkoutDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Create Workout</Button>
+        <Button className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-indigo-500 hover:to-blue-500 transition-all shadow-md">
+          Create Workout
+        </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-md p-6 rounded-xl shadow-lg bg-white">
         <DialogHeader>
-          <DialogTitle>Create New Workout</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-gray-800">
+            New Workout
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 mt-4">
+        <div className="flex flex-col gap-5 mt-5">
           <Input
             placeholder="Workout Title"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            className="border-gray-300 focus:ring-2 focus:ring-indigo-400 rounded-lg shadow-sm"
           />
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-64 overflow-y-auto">
             {exercises.length === 0 ? (
-              <p className="text-sm text-gray-500 col-span-full">
+              <p className="text-sm text-gray-500 col-span-full text-center">
                 No exercises found
               </p>
             ) : (
@@ -90,19 +97,25 @@ export default function WorkoutDialog() {
                   <div
                     key={exercise.id}
                     onClick={() => toggleExercise(exercise.id)}
-                    className={`p-4 rounded-lg cursor-pointer border transition-colors ${
+                    className={`flex flex-col justify-center items-center p-4 rounded-xl cursor-pointer border transition-all duration-200 shadow-sm hover:shadow-md ${
                       isSelected
-                        ? "bg-blue-500 text-white border-blue-500"
-                        : "bg-white text-black border-gray-300 hover:bg-gray-100"
+                        ? "bg-indigo-500 text-white border-indigo-500"
+                        : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50"
                     }`}
                   >
-                    <h3 className="font semibold">{exercise.name}</h3>
+                    <h3 className="font-semibold text-center">{exercise.name}</h3>
                   </div>
                 );
               })
             )}
           </div>
-          <Button onClick={handleCreateWorkout}>save workout</Button>
+
+          <Button
+            onClick={handleCreateWorkout}
+            className="bg-indigo-500 text-white hover:bg-indigo-600 transition-colors shadow-md py-2"
+          >
+            Save Workout
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
