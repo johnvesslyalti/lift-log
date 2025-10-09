@@ -106,8 +106,6 @@ model Exercise {
     name             String            @unique
     sets             Int
     reps             Int
-    category         String
-    weight           Float?
     user             User              @relation(fields: [userId], references: [id])
     userId           String
     workoutExercises WorkoutExercise[]

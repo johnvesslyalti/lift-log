@@ -57,7 +57,6 @@ export async function POST(req: NextRequest) {
         name: validateData.name,
         sets: validateData.sets,
         reps: validateData.reps,
-        category: validateData.category,
         userId: session.user.id
       },
     });

@@ -54,7 +54,7 @@ export default function ExerciseModal({ onsuccess }: ExerciseModalProps) {
       onsuccess?.();
 
       setTimeout(() => setOpen(false), 800);
-    } catch (err) {
+    } catch {
       setMessage("Something went wrong. Try again.");
     } finally {
       setLoading(false);
@@ -90,7 +90,7 @@ export default function ExerciseModal({ onsuccess }: ExerciseModalProps) {
               placeholder="Eg: Bench Press"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="border-gray-300 focus:ring-2 focus:ring-indigo-400 rounded-lg shadow-sm"
+              className="border-gray-300 focus:ring-2 focus:ring-indigo-400 rounded-lg shadow-sm text-black"
             />
           </div>
 
