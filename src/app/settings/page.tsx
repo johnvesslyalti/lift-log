@@ -1,6 +1,7 @@
 // app/settings/page.tsx
 "use client";
 
+import HandleDeleteAccount from "@/components/handle-delete-account";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useState } from "react";
 
@@ -129,6 +130,10 @@ export default function SettingsPage() {
         <h2 className="text-xl font-semibold">About</h2>
         <p>App Version: 1.0.0</p>
       </section>
+      {/* Logout Button */}
+      <div className="w-full flex justify-center">
+        <HandleDeleteAccount />
+      </div>
     </div>
   );
 }

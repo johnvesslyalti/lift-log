@@ -1,36 +1,61 @@
+import { handleError } from "@/components/error-handle";
+import { PrismaClient } from "@/generated/prisma";
 import { auth } from "@/lib/auth";
 import { profileSchema } from "@/lib/validation";
-import { PrismaClient } from "@prisma/client";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { ZodError } from "zod";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export async function POST(res: NextResponse, req: NextRequest) {
-    const session = await auth.api.getSession({ headers: await headers()})
-    if (!session)
-        return NextResponse.json({ message: "Invalid User"}, { status: 401 })
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session)
+    return NextResponse.json({ message: "Invalid User" }, { status: 401 });
 
-    try {
-        const body = await req.json()
+  try {
+    const body = await req.json();
 
-        const validateData = profileSchema.parse(body)
+    const validateData = profileSchema.parse(body);
 
-        await prisma.User.update({
-            data: {
-                userId: validateData.userId,
-                validateData
-            }
-        })
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        ...validateData,
+      },
+    });
+  } catch (error: unknown) {
+    const err = handleError(error);
+    return NextResponse.json(err, { status: 400 });
+  }
+}
 
-    } catch (error: unknown) {
-        if (error instanceof ZodError) {
-            return NextResponse.json({ error: error.issues }, { status: 401 })
-        } else if(error instanceof Error) {
-            console.error(error.message)
-        } else {
-            console.error("Unexpected errors", error)
-        }
-    }
+export async function DELETE() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session)
+    return NextResponse.json({ message: "Invalid User" }, { status: 401 });
+
+  try {
+    const userId = session.user.id;
+
+    // 1. Delete all WorkoutExercise records of this user's exercises or workouts
+    await prisma.workoutExercise.deleteMany({
+      where: {
+        OR: [{ Exercise: { userId } }, { Workout: { userId } }],
+      },
+    });
+
+    // 2. Delete all Exercises of this user
+    await prisma.exercise.deleteMany({ where: { userId } });
+
+    // 3. Delete all Workouts of this user
+    await prisma.workout.deleteMany({ where: { userId } });
+
+    // 4. Finally, delete the User
+    await prisma.user.delete({ where: { id: userId } });
+
+    return NextResponse.json({ message: "Account deleted successfully" });
+  } catch (error: unknown) {
+    const err = handleError(error);
+    return NextResponse.json(err, { status: 400 });
+  }
 }

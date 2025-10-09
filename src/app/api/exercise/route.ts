@@ -4,7 +4,6 @@ import { auth } from "@/lib/auth";
 import { exerciseSchema } from "@/lib/validation";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { ZodError } from "zod";
 
 const prisma = new PrismaClient();
 
@@ -23,8 +22,8 @@ export async function GET() {
 
     return NextResponse.json(exercises, { status: 200 });
   } catch (error: unknown) {
-    const err = handleError(error)
-    return NextResponse.json(err, { status: 500})
+    const err = handleError(error);
+    return NextResponse.json(err, { status: 500 });
   }
 }
 
@@ -40,16 +39,17 @@ export async function POST(req: NextRequest) {
     const { name } = validateData;
 
     const existingExercise = await prisma.exercise.findFirst({
-        where: {
-            userId: session.user.id,
-            name,
-        },
+      where: {
+        userId: session.user.id,
+        name,
+      },
     });
 
-    if(existingExercise) {
-        return new Response(
-            JSON.stringify({ message: "Exercise with this name already exists."}), { status : 400}
-        );
+    if (existingExercise) {
+      return new Response(
+        JSON.stringify({ message: "Exercise with this name already exists." }),
+        { status: 400 }
+      );
     }
 
     await prisma.exercise.create({
@@ -57,18 +57,54 @@ export async function POST(req: NextRequest) {
         name: validateData.name,
         sets: validateData.sets,
         reps: validateData.reps,
-        userId: session.user.id
+        userId: session.user.id,
       },
     });
 
-    return NextResponse.json({ message: "Exercise create successfully"})
+    return NextResponse.json({ message: "Exercise create successfully" });
   } catch (error: unknown) {
-    if (error instanceof ZodError) {
-      return NextResponse.json({ error: error.issues }, { status: 401 });
-    } else if (error instanceof Error) {
-      console.error(error.message);
-    } else {
-      console.error("unexpected error", error);
-    }
+    const err = handleError(error);
+    return NextResponse.json(err, { status: 500 });
   }
+}
+
+export async function DELETE(req: NextRequest) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session)
+    return NextResponse.json(
+      { message: "User doesnot exist" },
+      { status: 401 }
+    );
+
+    try {
+        const body = await req.json()
+        const { id } = body;
+
+        if(!id) {
+            return NextResponse.json(
+                { message: "Exercise ID is required" },
+                { status: 400 }
+            )
+        }
+
+        const exercise = await prisma.exercise.findUnique({
+            where: { id },
+        })
+
+        if (!exercise || exercise.userId !== session.user.id) {
+            return NextResponse.json(
+                { message: "Exercise not found or not authorized" },
+                { status: 400 }
+            )
+        }
+
+        await prisma.exercise.delete({
+            where: { id },
+        })
+
+        return NextResponse.json({ message: "Exercise deleted successfully" })
+    } catch(error: unknown) {
+        const err = handleError(error)
+        return NextResponse.json(err, { status: 500 })
+    }
 }
