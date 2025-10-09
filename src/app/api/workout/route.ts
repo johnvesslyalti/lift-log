@@ -15,6 +15,14 @@ export async function GET() {
   try {
     const workouts = await prisma.workout.findMany({
       where: { userId: session.user.id },
+      include: {
+        workoutExercises: {
+          include: {
+            // Use include, not select, for nested relation
+            Exercise: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json(workouts, { status: 200 });
@@ -37,7 +45,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    console.log("incoming body", body)
+    console.log("incoming body", body);
 
     const validateData = workoutSchema.parse(body);
     const { name, exercises } = validateData;
@@ -65,7 +73,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.issues }, { status: 400 });
     } else if (error instanceof Error) {
       console.error(error.message);
-      return NextResponse.json({ error: error.message}, { status: 500 })
+      return NextResponse.json({ error: error.message }, { status: 500 });
     } else {
       console.error("unexpected error", error);
     }

@@ -1,96 +1,179 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import WorkoutDialog from "./workout-dialog";
 import { MdFitnessCenter } from "react-icons/md";
 import Loading from "@/components/loading";
 
+interface Exercise {
+  id: string;
+  name: string;
+}
+
+interface WorkoutExercise {
+  id: string;
+  Exercise: Exercise;
+}
+
 interface Workout {
   id: string;
   name: string;
-  exercises: string[];
+  workoutExercises: WorkoutExercise[];
 }
 
 export default function WorkoutsPage() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "error" | "success"
+  >("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const fetchWorkouts = async () => {
-    setLoading(true);
+  const fetchWorkouts = useCallback(async () => {
+    setStatus("loading");
+    setErrorMessage("");
     try {
       const res = await fetch("/api/workout");
       if (!res.ok) throw new Error("Failed to fetch workouts");
       const data: Workout[] = await res.json();
       setWorkouts(data || []);
-      setError("");
-    } catch (err: unknown) {
-      setError("Failed to load workouts. Try again later.");
-    } finally {
-      setLoading(false);
+      setStatus("success");
+    } catch (error) {
+      setErrorMessage("Failed to load workouts. Try again later.");
+      setStatus("error");
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchWorkouts();
-  }, []);
+  }, [fetchWorkouts]);
 
-  if(loading) {
-    return (
-        <Loading text="workouts" />
-    )
+  if (status === "loading" || status === "idle") {
+    return <Loading text="workouts" />;
   }
 
   return (
     <div className="min-h-screen bg-black p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-neutral-950 rounded-2xl shadow-xl p-6 md:p-8 mb-8 border border-neutral-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <header
+          className="bg-neutral-950 rounded-2xl shadow-xl p-6 md:p-8 mb-8 border border-neutral-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+          aria-label="Workouts header"
+        >
           <div className="flex items-center gap-4">
-            <div className="bg-neutral-900 p-4 rounded-2xl shadow-lg">
+            <div
+              className="bg-neutral-900 p-4 rounded-2xl shadow-lg"
+              aria-hidden="true"
+            >
               <MdFitnessCenter className="text-3xl text-white" />
             </div>
             <div>
               <h1 className="text-3xl font-bold text-white">My Workouts</h1>
-              <p className="text-neutral-400 mt-1">
-                {workouts.length} {workouts.length === 1 ? "workout" : "workouts"} tracked
+              <p
+                className="text-neutral-400 mt-1"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {workouts.length}{" "}
+                {workouts.length === 1 ? "workout" : "workouts"} tracked
               </p>
             </div>
           </div>
           <WorkoutDialog onWorkoutCreated={fetchWorkouts} />
-        </div>
+        </header>
 
         {/* Error */}
-        {error && <p className="text-red-400 text-center">{error}</p>}
+        {status === "error" && (
+          <section
+            className="text-red-400 text-center mb-8"
+            role="alert"
+            aria-live="assertive"
+          >
+            <p>{errorMessage}</p>
+            <button
+              onClick={fetchWorkouts}
+              className="mt-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+              aria-label="Retry loading workouts"
+            >
+              Retry
+            </button>
+          </section>
+        )}
 
         {/* Empty State */}
-        {!loading && workouts.length === 0 && !error && (
-          <div className="bg-neutral-950 rounded-2xl shadow-xl p-12 text-center border border-neutral-800">
-            <h3 className="text-2xl font-bold text-white mb-3">No Workouts Yet</h3>
+        {!errorMessage && workouts.length === 0 && (
+          <section
+            className="bg-neutral-950 rounded-2xl shadow-xl p-12 text-center border border-neutral-800"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <h3 className="text-2xl font-bold text-white mb-3">
+              No Workouts Yet
+            </h3>
             <p className="text-neutral-400 mb-6 max-w-md mx-auto">
-              Start tracking your fitness journey by adding your first workout using the button above!
+              Start tracking your fitness journey by adding your first workout
+              using the button above!
             </p>
-          </div>
+          </section>
         )}
 
         {/* Workout Grid */}
-        {!loading && workouts.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {!errorMessage && workouts.length > 0 && (
+          <section
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            aria-label="List of workouts"
+          >
             {workouts.map((w, index) => (
-              <div
+              <article
                 key={w.id}
-                className="group bg-neutral-950 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-neutral-800 hover:border-white hover:-translate-y-1"
-                style={{ animation: `fadeIn 0.5s ease-out ${index * 0.1}s both` }}
+                className="relative group rounded-2xl bg-gradient-to-br from-neutral-900/80 to-neutral-950/90 backdrop-blur-xl border border-neutral-800/70 shadow-lg hover:shadow-white/10 transition-all duration-500 overflow-hidden p-[1px]"
+                style={{
+                  animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`,
+                }}
+                tabIndex={0}
+                aria-labelledby={`workout-title-${w.id}`}
               >
-                <div className="bg-neutral-900 p-6">
-                  <h3 className="text-xl font-bold text-white mb-2">{w.name}</h3>
-                  <p className="text-neutral-400">
-                    Exercises: {(w.exercises || []).join(", ") || "No exercises yet"}
+                {/* Glow border effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"></div>
+
+                {/* Card content */}
+                <div className="relative z-10 bg-neutral-950/60 p-6 rounded-2xl backdrop-blur-md">
+                  <div className="flex justify-between items-start">
+                    <h3
+                      id={`workout-title-${w.id}`}
+                      className="text-2xl font-semibold text-white tracking-tight"
+                    >
+                      {w.name}
+                    </h3>
+
+                    <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-neutral-300 border border-neutral-700">
+                      {w.workoutExercises?.length || 0}{" "}
+                      {w.workoutExercises?.length === 1
+                        ? "Exercise"
+                        : "Exercises"}
+                    </span>
+                  </div>
+
+                  <p
+                    className="text-neutral-400 mt-3 text-sm leading-relaxed"
+                    aria-label={`Exercises: ${w.workoutExercises?.length || 0}`}
+                  >
+                    {w.workoutExercises?.length
+                      ? w.workoutExercises
+                          .map((e) => e.Exercise.name)
+                          .join(", ")
+                      : "No exercises yet"}
                   </p>
+
+                  {/* Hover actions */}
+                  <div className="flex justify-end mt-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <button className="px-4 py-2 text-sm rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium border border-neutral-700 transition-colors duration-300">
+                      View Details
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </article>
             ))}
-          </div>
+          </section>
         )}
       </div>
 
