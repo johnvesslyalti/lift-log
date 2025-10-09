@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import ExerciseModal from "./exercise-model";
+import ExerciseModal from "./exercise-dialog";
 import { handleError } from "@/components/error-handle";
 import { MdFitnessCenter, MdDelete } from "react-icons/md";
 import { FiRepeat } from "react-icons/fi";
@@ -217,7 +217,7 @@ export default function Exercise() {
                           Total Volume
                         </span>
                         <span className="text-lg font-bold text-white">
-                          {ex.sets * ex.reps} reps
+                          {ex.sets * ex.reps} Lifts
                         </span>
                       </div>
                     </div>
