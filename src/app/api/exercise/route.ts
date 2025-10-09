@@ -77,8 +77,8 @@ export async function DELETE(req: NextRequest) {
     );
 
     try {
-        const body = await req.json()
-        const { id } = body;
+        const { searchParams } = new URL(req.url);
+        const id = searchParams.get("id");
 
         if(!id) {
             return NextResponse.json(
@@ -88,7 +88,7 @@ export async function DELETE(req: NextRequest) {
         }
 
         const exercise = await prisma.exercise.findUnique({
-            where: { id },
+            where: { id: Number(id) },
         })
 
         if (!exercise || exercise.userId !== session.user.id) {
@@ -99,7 +99,7 @@ export async function DELETE(req: NextRequest) {
         }
 
         await prisma.exercise.delete({
-            where: { id },
+            where: { id: Number(id) },
         })
 
         return NextResponse.json({ message: "Exercise deleted successfully" })

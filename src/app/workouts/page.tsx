@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUserStore } from "@/store/userStore";
 import WorkoutDialog from "./workout-dialog";
 
 type Workout = {
@@ -13,7 +12,6 @@ type Workout = {
 export default function Workouts() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [loading, setLoading] = useState(true);
-  const setUser = useUserStore((state) => state.setUser);
 
   useEffect(() => {
     const fetchWorkouts = async () => {
