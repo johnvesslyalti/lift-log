@@ -12,7 +12,7 @@ export const profileSchema = z.object({
 });
 
 export const exerciseSchema = z.object({
-    name: z.string(),
+    name: z.string().min(1, "Name is required"),
     sets: z.int(),
     reps: z.int(),
     category: z.string(),

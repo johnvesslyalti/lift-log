@@ -103,7 +103,7 @@ model WorkoutExercise {
 
 model Exercise {
     id               Int               @id @default(autoincrement())
-    name             String
+    name             String            @unique
     sets             Int
     reps             Int
     category         String

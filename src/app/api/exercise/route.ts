@@ -37,6 +37,21 @@ export async function POST(req: NextRequest) {
 
     const validateData = await exerciseSchema.parse(body);
 
+    const { name } = validateData;
+
+    const existingExercise = await prisma.exercise.findFirst({
+        where: {
+            userId: session.user.id,
+            name,
+        },
+    });
+
+    if(existingExercise) {
+        return new Response(
+            JSON.stringify({ message: "Exercise with this name already exists."}), { status : 400}
+        );
+    }
+
     await prisma.exercise.create({
       data: {
         name: validateData.name,
