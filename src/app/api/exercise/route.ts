@@ -98,6 +98,10 @@ export async function DELETE(req: NextRequest) {
             )
         }
 
+        await prisma.workoutExercise.deleteMany({
+            where: { exerciseId: Number(id)}
+        })
+
         await prisma.exercise.delete({
             where: { id: Number(id) },
         })
