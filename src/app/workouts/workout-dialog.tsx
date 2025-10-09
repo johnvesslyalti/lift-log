@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,135 +11,180 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { IoMdAdd } from "react-icons/io";
+import { MdFitnessCenter } from "react-icons/md";
+import { AiOutlineCheckCircle, AiOutlineWarning } from "react-icons/ai";
 
 interface Exercise {
-  id: number;
+  id: string;
   name: string;
 }
 
 interface WorkoutDialogProps {
-  onWorkoutCreated?: () => void; // callback to refresh workouts
+  onWorkoutCreated?: () => void;
 }
 
-export default function WorkoutDialog({
-  onWorkoutCreated,
-}: WorkoutDialogProps) {
+export default function WorkoutDialog({ onWorkoutCreated }: WorkoutDialogProps) {
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
+  const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [selectedExercises, setSelectedExercises] = useState<number[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error">("success");
 
   useEffect(() => {
+    // Fetch all exercises for selection
     const fetchExercises = async () => {
       try {
         const res = await fetch("/api/exercise");
-        const data = await res.json();
-        setExercises(data);
-      } catch (error) {
-        console.error("Failed to fetch exercises:", error);
-      } finally {
-        setLoading(false);
+        if (!res.ok) throw new Error("Failed to fetch exercises");
+        const data: Exercise[] = await res.json();
+        setExercises(data || []);
+      } catch (err) {
+        console.error(err);
       }
     };
+
     fetchExercises();
   }, []);
 
-  const toggleExercise = (id: number) => {
-    setSelectedExercises((prev) =>
-      prev.includes(id) ? prev.filter((ex) => ex !== id) : [...prev, id]
-    );
+  const showMessage = (text: string, type: "success" | "error") => {
+    setMessage(text);
+    setMessageType(type);
+    setTimeout(() => setMessage(""), 3000);
   };
 
   const handleCreateWorkout = async () => {
     if (!name.trim()) {
-      alert("Enter a workout name");
-      return;
-    }
-    if (selectedExercises.length === 0) {
-      alert("Select at least one exercise");
+      showMessage("Workout name is required", "error");
       return;
     }
 
+    setLoading(true);
     try {
       const res = await fetch("/api/workout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, exercises: selectedExercises }),
+        body: JSON.stringify({
+          name,
+          exercises: selectedExercises, // send selected exercise IDs
+        }),
       });
 
       if (!res.ok) throw new Error("Failed to create workout");
 
       setName("");
       setSelectedExercises([]);
-      alert("Workout created successfully!");
+      showMessage("Workout created successfully!", "success");
+      onWorkoutCreated?.();
 
-      if (onWorkoutCreated) onWorkoutCreated(); // refresh workouts in parent
+      setTimeout(() => setOpen(false), 1000);
     } catch (error) {
-      console.error(error);
-      alert("Failed to create workout. Try again.");
+      showMessage(error instanceof Error ? error.message : "Something went wrong", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
+  const toggleExercise = (id: string) => {
+    setSelectedExercises((prev) =>
+      prev.includes(id) ? prev.filter((e) => e !== id) : [...prev, id]
+    );
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={(isOpen) => { setOpen(isOpen); if(!isOpen) { setMessage(""); setSelectedExercises([]); } }}>
       <DialogTrigger asChild>
         <Button className="relative flex items-center gap-2 bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold px-6 py-3 rounded-xl overflow-hidden group">
-          <div className="absolute inset-0 bg-neutral-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-neutral-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
           <IoMdAdd className="text-xl relative z-10" />
-          <span className="relative z-10">Add Exercise</span>
+          <span className="relative z-10">Add Workout</span>
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-md w-full p-6 rounded-xl shadow-lg bg-white">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-800">
-            New Workout
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-xl p-0 rounded-3xl shadow-2xl bg-neutral-950 border-0 overflow-hidden max-h-[90vh] overflow-y-auto">
+        <div className="bg-black p-8 text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32 blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-neutral-900/40 rounded-full translate-y-24 -translate-x-24 blur-2xl" />
+          <DialogHeader className="relative z-10">
+            <div className="flex items-center gap-4">
+              <div className="bg-neutral-800 p-4 rounded-2xl backdrop-blur-sm border border-neutral-900 shadow-lg">
+                <MdFitnessCenter className="text-4xl text-white" />
+              </div>
+              <div className="flex-1">
+                <DialogTitle className="text-3xl font-bold mb-1 text-white">
+                  New Workout
+                </DialogTitle>
+                <p className="text-neutral-400 text-base">
+                  Track your workouts by creating new routines
+                </p>
+              </div>
+            </div>
+          </DialogHeader>
+        </div>
 
-        <div className="flex flex-col gap-5 mt-5">
+        <div className="p-8 space-y-6 bg-black">
           <Input
-            placeholder="Workout Title"
+            placeholder="Workout Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="border-gray-300 focus:ring-2 focus:ring-indigo-400 rounded-lg shadow-sm"
+            disabled={loading}
+            className="border-2 border-neutral-800 focus:border-neutral-200 focus:ring-4 focus:ring-neutral-900 rounded-xl shadow-sm text-white placeholder:text-neutral-500 bg-neutral-950 transition-all h-12 px-4 text-base"
           />
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-64 overflow-y-auto border p-2 rounded-lg">
-            {loading ? (
-              <p className="col-span-full text-center text-gray-500">
-                Loading exercises...
-              </p>
-            ) : exercises.length === 0 ? (
-              <p className="col-span-full text-center text-gray-500">
-                No exercises found
-              </p>
-            ) : (
-              exercises.map((exercise) => {
-                const isSelected = selectedExercises.includes(exercise.id);
-                return (
-                  <div
-                    key={exercise.id}
-                    onClick={() => toggleExercise(exercise.id)}
-                    className={`flex flex-col justify-center items-center p-3 rounded-lg cursor-pointer border transition-all duration-200 shadow-sm hover:shadow-md text-center ${
-                      isSelected
-                        ? "bg-indigo-500 text-white border-indigo-500"
-                        : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    <h3 className="font-semibold">{exercise.name}</h3>
-                  </div>
-                );
-              })
-            )}
+          {/* Exercise selection */}
+          <div className="max-h-64 overflow-y-auto border border-neutral-800 rounded-xl p-3 bg-neutral-900">
+            {exercises.map((ex) => (
+              <label
+                key={ex.id}
+                className="flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-neutral-800 rounded-lg transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedExercises.includes(ex.id)}
+                  onChange={() => toggleExercise(ex.id)}
+                  className="w-4 h-4 accent-blue-500"
+                  disabled={loading}
+                />
+                <span className="text-white">{ex.name}</span>
+              </label>
+            ))}
+            {exercises.length === 0 && <p className="text-neutral-400 text-sm">No exercises found</p>}
           </div>
 
-          <Button
-            onClick={handleCreateWorkout}
-            className="py-2 bg-indigo-500 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-600 transition-colors"
-          >
-            Save Workout
-          </Button>
+          {message && (
+            <div
+              className={`flex items-center gap-3 p-4 rounded-xl text-sm font-medium shadow-md ${
+                messageType === "success"
+                  ? "bg-neutral-900 text-green-400 border-2 border-green-900"
+                  : "bg-neutral-900 text-red-400 border-2 border-red-900"
+              }`}
+            >
+              {messageType === "success" ? (
+                <AiOutlineCheckCircle className="text-xl flex-shrink-0" />
+              ) : (
+                <AiOutlineWarning className="text-xl flex-shrink-0" />
+              )}
+              <span>{message}</span>
+            </div>
+          )}
+
+          <div className="flex gap-4 pt-4">
+            <Button
+              onClick={() => setOpen(false)}
+              disabled={loading}
+              className="flex-1 border-2 border-neutral-800 hover:bg-neutral-900 hover:border-neutral-700 text-white font-semibold py-3 rounded-xl transition-all text-base h-12 bg-black"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateWorkout}
+              disabled={loading || !name.trim()}
+              className="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-base h-12"
+            >
+              {loading ? "Creating..." : "Save Workout"}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

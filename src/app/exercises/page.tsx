@@ -7,6 +7,7 @@ import { MdFitnessCenter, MdDelete } from "react-icons/md";
 import { FiRepeat } from "react-icons/fi";
 import { BiDumbbell } from "react-icons/bi";
 import { AiOutlineCheckCircle } from "react-icons/ai";
+import Loading from "@/components/loading";
 
 interface Exercise {
   id: number;
@@ -72,15 +73,7 @@ export default function Exercise() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center">
-          <div className="relative w-20 h-20 mx-auto mb-4">
-            <div className="absolute inset-0 border-4 border-neutral-800 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-t-neutral-400 border-r-neutral-600 border-b-transparent border-l-transparent rounded-full animate-spin"></div>
-          </div>
-          <p className="text-neutral-400 font-medium">Loading exercises...</p>
-        </div>
-      </div>
+      <Loading text="exercises"/>
     );
   }
 
