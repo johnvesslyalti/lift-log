@@ -1,137 +1,127 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-    provider = "prisma-client-js"
-    output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-    id             String           @id
-    name           String
-    email          String
-    emailVerified  Boolean          @default(false)
-    image          String?
-    height         Float?
-    weight         Float?
-    createdAt      DateTime         @default(now())
-    updatedAt      DateTime         @default(now()) @updatedAt
-    sessions       Session[]
-    accounts       Account[]
-    workouts       Workout[]
-    workoutSession WorkoutSession[]
-    progress       Progress[]
-    exercises      Exercise[]
+  id             String           @id
+  name           String
+  email          String           @unique
+  emailVerified  Boolean          @default(false)
+  image          String?
+  height         Float?
+  weight         Float?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now()) @updatedAt
+  exercises      Exercise[]
+  progress       Progress[]
+  workouts       Workout[]
+  workoutSession WorkoutSession[]
+  accounts       Account[]
+  sessions       Session[]
 
-    @@unique([email])
-    @@map("user")
+  @@map("user")
 }
 
 model Session {
-    id        String   @id
-    expiresAt DateTime
-    token     String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    ipAddress String?
-    userAgent String?
-    userId    String
-    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([token])
-    @@map("session")
+  @@map("session")
 }
 
 model Account {
-    id                    String    @id
-    accountId             String
-    providerId            String
-    userId                String
-    user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    accessToken           String?
-    refreshToken          String?
-    idToken               String?
-    accessTokenExpiresAt  DateTime?
-    refreshTokenExpiresAt DateTime?
-    scope                 String?
-    password              String?
-    createdAt             DateTime  @default(now())
-    updatedAt             DateTime  @updatedAt
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@map("account")
+  @@map("account")
 }
 
 model Verification {
-    id         String   @id
-    identifier String
-    value      String
-    expiresAt  DateTime
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @default(now()) @updatedAt
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
 
-    @@map("verification")
+  @@map("verification")
 }
 
 model Workout {
-    id        Int      @id @default(autoincrement())
-    user      User     @relation(fields: [userId], references: [id])
-    userId    String
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    workoutSessions  WorkoutSession[]
-    workoutExercises WorkoutExercise[]
+  id               Int               @id @default(autoincrement())
+  userId           String
+  name             String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  user             User              @relation(fields: [userId], references: [id])
+  workoutExercises WorkoutExercise[]
+  workoutSessions  WorkoutSession[]
 }
 
 model WorkoutExercise {
-    workoutId  Int
-    exerciseId Int
-    Workout    Workout  @relation(fields: [workoutId], references: [id])
-    Exercise   Exercise @relation(fields: [exerciseId], references: [id])
+  workoutId  Int
+  exerciseId Int
+  Exercise   Exercise @relation(fields: [exerciseId], references: [id])
+  Workout    Workout  @relation(fields: [workoutId], references: [id])
 
-    @@id([workoutId, exerciseId])
+  @@id([workoutId, exerciseId])
 }
 
 model Exercise {
-    id               Int               @id @default(autoincrement())
-    name             String            @unique
-    sets             Int
-    reps             Int
-    user             User              @relation(fields: [userId], references: [id])
-    userId           String
-    workoutExercises WorkoutExercise[]
+  id               Int               @id @default(autoincrement())
+  name             String            @unique
+  sets             Int
+  reps             Int
+  userId           String
+  user             User              @relation(fields: [userId], references: [id])
+  workoutExercises WorkoutExercise[]
 }
 
 model WorkoutSession {
-    id             Int      @id @default(autoincrement())
-    user           User     @relation(fields: [userId], references: [id])
-    userId         String
-    workout        Workout  @relation(fields: [workoutId], references: [id])
-    workoutId      Int
-    startTime      DateTime
-    endTime        DateTime
-    caloriesBurned Float?
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id             Int      @id @default(autoincrement())
+  userId         String
+  workoutId      Int
+  startTime      DateTime
+  endTime        DateTime
+  caloriesBurned Float?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+  workout        Workout  @relation(fields: [workoutId], references: [id])
 }
 
 model Progress {
-    id        Int      @id @default(autoincrement())
-    user      User     @relation(fields: [userId], references: [id])
-    userId    String
-    date      DateTime @default(now())
-    weight    Float?
-    streak    Int
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  userId    String
+  date      DateTime @default(now())
+  weight    Float?
+  streak    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
 }
