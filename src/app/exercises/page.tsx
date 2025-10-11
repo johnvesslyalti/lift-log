@@ -72,9 +72,7 @@ export default function Exercise() {
   }, []);
 
   if (loading) {
-    return (
-      <Loading text="exercises"/>
-    );
+    return <Loading text="exercises" />;
   }
 
   return (
@@ -88,11 +86,10 @@ export default function Exercise() {
                 <MdFitnessCenter className="text-3xl text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white">
-                  My Exercises
-                </h1>
+                <h1 className="text-3xl font-bold text-white">My Exercises</h1>
                 <p className="text-neutral-400 mt-1">
-                  {exercises.length} {exercises.length === 1 ? "exercise" : "exercises"} tracked
+                  {exercises.length}{" "}
+                  {exercises.length === 1 ? "exercise" : "exercises"} tracked
                 </p>
               </div>
             </div>
@@ -120,7 +117,8 @@ export default function Exercise() {
               No Exercises Yet
             </h3>
             <p className="text-neutral-400 mb-6 max-w-md mx-auto">
-              Start tracking your fitness journey by adding your first exercise using the button above!
+              Start tracking your fitness journey by adding your first exercise
+              using the button above!
             </p>
             <div className="flex items-center justify-center gap-2 text-white">
               <AiOutlineCheckCircle className="text-xl" />
@@ -166,7 +164,7 @@ export default function Exercise() {
                 {/* Card Body */}
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-white mb-3 line-clamp-2">
-                    {ex.name}
+                    {ex.name.charAt(0).toUpperCase() + ex.name.slice(1)}
                   </h3>
 
                   {ex.category && (
