@@ -12,6 +12,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Exercise } from "../exercises/page";
+import Loading from "@/components/loading";
 
 interface ExerciseStats {
   exercises: Exercise[];
@@ -67,7 +68,7 @@ export default function Dashboard() {
     fetchStats();
   }, [setUser]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loading text="dashboard"/>;
 
   return (
     <div className="min-h-screen p-6">
