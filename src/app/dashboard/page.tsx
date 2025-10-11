@@ -12,27 +12,31 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const dummyStats = [
-  { day: "Mon", lifts: 5 },
-  { day: "Tue", lifts: 3 },
-  { day: "Wed", lifts: 4 },
-  { day: "Thu", lifts: 6 },
-  { day: "Fri", lifts: 2 },
-  { day: "Sat", lifts: 4 },
-  { day: "Sun", lifts: 1 },
-];
-
-const recentWorkouts = [
-  "Monday - Chest & Triceps",
-  "Tuesday - Back & Biceps",
-  "Wednesday - Legs",
-  "Thursday - Shoulders",
-  "Friday - Full Body",
-];
+interface ExerciseStats {
+  exercises: any[];
+  totalLifts: number;
+  totalWeekLifts: number;
+  averageReps: number;
+}
 
 export default function Dashboard() {
   const setUser = useUserStore((state) => state.setUser);
   const [userName, setUserName] = useState<string | null>(null);
+  const [stats, setStats] = useState<ExerciseStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchStats = async () => {
+    try {
+      const res = await fetch("/api/exercise"); // Adjust if your API route is different
+      if (!res.ok) throw new Error("Failed to fetch exercises");
+      const data: ExerciseStats = await res.json();
+      setStats(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const getUser = async () => {
@@ -59,7 +63,10 @@ export default function Dashboard() {
     };
 
     getUser();
+    fetchStats();
   }, [setUser]);
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="min-h-screen p-6">
@@ -70,23 +77,25 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Total Lifts */}
         <div className="rounded-xl shadow p-4">
-          <h2 className="text-lg font-semibold mb-2">Total Lifts This Week</h2>
-          <p className="text-3xl font-bold">25</p>
-          <p className="text-gray-500 text-sm">Keep it up!</p>
+          <h2 className="text-lg font-semibold mb-2">Total Lifts</h2>
+          <p className="text-3xl font-bold">{stats?.totalLifts ?? 0}</p>
+          <p className="text-gray-500 text-sm">Keep it up! 🏋️‍♂️</p>
         </div>
 
-        {/* Max Weight */}
+        {/* Total Week Lifts */}
         <div className="rounded-xl shadow p-4">
-          <h2 className="text-lg font-semibold mb-2">Max Weight Lifted</h2>
-          <p className="text-3xl font-bold">120kg</p>
-          <p className="text-gray-500 text-sm">New PR 🔥</p>
+          <h2 className="text-lg font-semibold mb-2">Total Lifts This Week</h2>
+          <p className="text-3xl font-bold">{stats?.totalWeekLifts ?? 0}</p>
+          <p className="text-gray-500 text-sm">Stay consistent 🏋️‍♂️</p>
         </div>
 
         {/* Average Reps */}
         <div className="rounded-xl shadow p-4">
           <h2 className="text-lg font-semibold mb-2">Average Reps</h2>
-          <p className="text-3xl font-bold">8</p>
-          <p className="text-gray-500 text-sm">Steady gains 💪</p>
+          <p className="text-3xl font-bold">
+            {stats?.averageReps.toFixed(1) ?? 0}
+          </p>
+          <p className="text-gray-500 text-sm">Steady gains 🏋️‍♂️</p>
         </div>
       </div>
 
@@ -94,7 +103,16 @@ export default function Dashboard() {
       <div className="rounded-xl shadow p-4 mt-6 h-64">
         <h2 className="text-lg font-semibold mb-2">Weekly Lifts</h2>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={dummyStats}>
+          <BarChart
+            data={
+              stats?.exercises.map((ex) => ({
+                day: new Date(ex.createdAt).toLocaleDateString("en-US", {
+                  weekday: "short",
+                }),
+                lifts: ex.sets * ex.reps,
+              })) ?? []
+            }
+          >
             <XAxis dataKey="day" />
             <YAxis />
             <Tooltip />
@@ -107,8 +125,10 @@ export default function Dashboard() {
       <div className="rounded-xl shadow p-4 mt-6">
         <h2 className="text-lg font-semibold mb-2">Recent Workouts</h2>
         <ul className="space-y-1">
-          {recentWorkouts.map((w, i) => (
-            <li key={i}>🏋️‍♂️ {w}</li>
+          {stats?.exercises.slice(0, 5).map((ex, i) => (
+            <li key={i}>
+              🏋️‍♂️ {ex.name} — {ex.sets} sets × {ex.reps} reps
+            </li>
           ))}
         </ul>
       </div>
