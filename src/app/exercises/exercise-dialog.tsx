@@ -142,15 +142,15 @@ export default function ExerciseModal({ onsuccess }: ExerciseModalProps) {
       }}
     >
       <DialogTrigger asChild>
-        <Button className="relative flex items-center gap-2 bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold px-6 py-3 rounded-xl overflow-hidden group">
-          <div className="absolute inset-0 bg-neutral-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <Button className="relative flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold px-6 py-3 rounded-xl overflow-hidden group">
+          <div className="absolute inset-0 bg-neutral-900 opacity-0 transition-opacity duration-300" />
           <IoMdAdd className="text-xl relative z-10" />
           <span className="relative z-10">Add Exercise</span>
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-xl p-0 rounded-3xl shadow-2xl bg-neutral-950 border-0 overflow-hidden max-h-[90vh] overflow-y-auto">
-        <div className="bg-black p-8 text-white relative overflow-hidden">
+        <div className="p-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32 blur-3xl" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-neutral-900/40 rounded-full translate-y-24 -translate-x-24 blur-2xl" />
           <DialogHeader className="relative z-10">

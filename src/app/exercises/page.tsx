@@ -76,17 +76,17 @@ export default function Exercise() {
   }
 
   return (
-    <div className="min-h-screen bg-black p-6 md:p-8">
+    <div className="min-h-screen p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="bg-neutral-950 rounded-2xl shadow-xl p-6 md:p-8 mb-8 border border-neutral-800">
+        <div className="dark:bg-neutral-950 rounded-2xl shadow-xl p-6 md:p-8 mb-8 border border-neutral-800">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex items-center gap-4">
-              <div className="bg-neutral-900 p-4 rounded-2xl shadow-lg">
-                <MdFitnessCenter className="text-3xl text-white" />
+              <div className="dark:bg-neutral-950 p-4 rounded-2xl shadow-lg">
+                <MdFitnessCenter className="text-3xl" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white">My Exercises</h1>
+                <h1 className="text-3xl font-bold ">My Exercises</h1>
                 <p className="text-neutral-400 mt-1">
                   {exercises.length}{" "}
                   {exercises.length === 1 ? "exercise" : "exercises"} tracked
@@ -99,7 +99,7 @@ export default function Exercise() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-neutral-900 border-2 border-red-800 rounded-xl p-4 mb-6 flex items-center gap-3">
+          <div className="dark:bg-neutral-950 border-2 border-red-800 rounded-xl p-4 mb-6 flex items-center gap-3">
             <div className="bg-neutral-800 p-2 rounded-lg">
               <MdFitnessCenter className="text-red-500 text-xl" />
             </div>
@@ -109,18 +109,18 @@ export default function Exercise() {
 
         {/* Empty State */}
         {exercises.length === 0 && !loading && !error && (
-          <div className="bg-neutral-950 rounded-2xl shadow-xl p-12 text-center border border-neutral-800">
-            <div className="bg-neutral-900 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
-              <BiDumbbell className="text-5xl text-white" />
+          <div className=" rounded-2xl shadow-xl p-12 text-center border border-neutral-800">
+            <div className=" w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+              <BiDumbbell className="text-5xl " />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-3">
+            <h3 className="text-2xl font-bold  mb-3">
               No Exercises Yet
             </h3>
-            <p className="text-neutral-400 mb-6 max-w-md mx-auto">
+            <p className="mb-6 max-w-md mx-auto">
               Start tracking your fitness journey by adding your first exercise
               using the button above!
             </p>
-            <div className="flex items-center justify-center gap-2 text-white">
+            <div className="flex items-center justify-center gap-2 ">
               <AiOutlineCheckCircle className="text-xl" />
               <span className="font-medium">
                 Click &quot;Add Exercise&quot; to begin
@@ -135,27 +135,27 @@ export default function Exercise() {
             {exercises.map((ex, index) => (
               <div
                 key={ex.id}
-                className="group bg-neutral-950 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-neutral-800 hover:border-white hover:-translate-y-1"
+                className="group  rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-neutral-800 hover:border-white hover:-translate-y-1"
                 style={{
                   animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`,
                 }}
               >
                 {/* Card Header */}
-                <div className="bg-neutral-900 p-6 relative overflow-hidden">
+                <div className=" p-6 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16 blur-2xl" />
                   <div className="relative z-10 flex items-start justify-between">
-                    <div className="bg-neutral-950 p-3 rounded-xl backdrop-blur-sm">
-                      <BiDumbbell className="text-2xl text-white" />
+                    <div className=" p-3 rounded-xl backdrop-blur-sm">
+                      <BiDumbbell className="text-2xl " />
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleDelete(ex.id)}
                         disabled={deleteId === ex.id}
-                        className="bg-neutral-950 hover:bg-red-600 p-2 rounded-lg backdrop-blur-sm transition-all duration-200 disabled:opacity-50"
+                        className=" hover:bg-red-600 p-2 rounded-lg backdrop-blur-sm transition-all duration-200 disabled:opacity-50"
                         title="Delete exercise"
                         aria-label="Delete exercise"
                       >
-                        <MdDelete className="text-white text-lg" />
+                        <MdDelete className=" text-lg" />
                       </button>
                     </div>
                   </div>
@@ -163,12 +163,12 @@ export default function Exercise() {
 
                 {/* Card Body */}
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-white mb-3 line-clamp-2">
+                  <h3 className="text-xl font-bold  mb-3 line-clamp-2">
                     {ex.name.charAt(0).toUpperCase() + ex.name.slice(1)}
                   </h3>
 
                   {ex.category && (
-                    <div className="inline-block bg-neutral-900 px-3 py-1 rounded-full mb-4">
+                    <div className="inline-block  px-3 py-1 rounded-full mb-4">
                       <span className="text-neutral-300 text-sm font-semibold">
                         {ex.category}
                       </span>
@@ -177,25 +177,25 @@ export default function Exercise() {
 
                   {/* Stats Grid */}
                   <div className="grid grid-cols-2 gap-4 mt-4">
-                    <div className="bg-neutral-950 rounded-xl p-4 border border-neutral-800">
+                    <div className=" rounded-xl p-4 border border-neutral-800">
                       <div className="flex items-center gap-2 mb-1">
                         <FiRepeat className="text-neutral-400" />
                         <span className="text-sm font-medium text-neutral-400">
                           Sets
                         </span>
                       </div>
-                      <p className="text-2xl font-bold text-white">
+                      <p className="text-2xl font-bold ">
                         {ex.sets || 0}
                       </p>
                     </div>
-                    <div className="bg-neutral-950 rounded-xl p-4 border border-neutral-800">
+                    <div className=" rounded-xl p-4 border border-neutral-800">
                       <div className="flex items-center gap-2 mb-1">
                         <FiRepeat className="text-neutral-400" />
                         <span className="text-sm font-medium text-neutral-400">
                           Reps
                         </span>
                       </div>
-                      <p className="text-2xl font-bold text-white">
+                      <p className="text-2xl font-bold ">
                         {ex.reps || 0}
                       </p>
                     </div>
@@ -207,7 +207,7 @@ export default function Exercise() {
                         <span className="text-sm font-medium text-neutral-400">
                           Total Volume
                         </span>
-                        <span className="text-lg font-bold text-white">
+                        <span className="text-lg font-bold ">
                           {ex.sets * ex.reps} Lifts
                         </span>
                       </div>
