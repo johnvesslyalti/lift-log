@@ -9,12 +9,14 @@ import { BiDumbbell } from "react-icons/bi";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 import Loading from "@/components/loading";
 
-interface Exercise {
+export interface Exercise {
   id: number;
   name: string;
   sets: number;
   reps: number;
   category: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export default function Exercise() {

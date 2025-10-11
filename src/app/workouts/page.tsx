@@ -159,8 +159,7 @@ export default function WorkoutsPage() {
                   >
                     {w.workoutExercises?.length
                       ? w.workoutExercises
-                          .map((e) => e.Exercise.name)
-                          .join(", ")
+                          .map((we) => we.Exercise?.name || "Unnamed Exercise").join(", ")
                       : "No exercises yet"}
                   </p>
 

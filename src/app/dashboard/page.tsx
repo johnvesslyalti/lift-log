@@ -11,9 +11,10 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { Exercise } from "../exercises/page";
 
 interface ExerciseStats {
-  exercises: any[];
+  exercises: Exercise[];
   totalLifts: number;
   totalWeekLifts: number;
   averageReps: number;

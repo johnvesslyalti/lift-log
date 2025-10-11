@@ -33,15 +33,19 @@ export default function WorkoutDialog({ onWorkoutCreated }: WorkoutDialogProps) 
   const [messageType, setMessageType] = useState<"success" | "error">("success");
 
   useEffect(() => {
-    // Fetch all exercises for selection
     const fetchExercises = async () => {
       try {
         const res = await fetch("/api/exercise");
         if (!res.ok) throw new Error("Failed to fetch exercises");
-        const data: Exercise[] = await res.json();
-        setExercises(data || []);
+
+        const data = await res.json();
+
+        // Safely extract exercises array from API response
+        const exercisesArray = Array.isArray(data.exercises) ? data.exercises : [];
+        setExercises(exercisesArray);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching exercises:", err);
+        setExercises([]);
       }
     };
 
@@ -67,7 +71,7 @@ export default function WorkoutDialog({ onWorkoutCreated }: WorkoutDialogProps) 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
-          exercises: selectedExercises, // send selected exercise IDs
+          exercises: selectedExercises,
         }),
       });
 
@@ -80,7 +84,10 @@ export default function WorkoutDialog({ onWorkoutCreated }: WorkoutDialogProps) 
 
       setTimeout(() => setOpen(false), 1000);
     } catch (error) {
-      showMessage(error instanceof Error ? error.message : "Something went wrong", "error");
+      showMessage(
+        error instanceof Error ? error.message : "Something went wrong",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
@@ -93,7 +100,16 @@ export default function WorkoutDialog({ onWorkoutCreated }: WorkoutDialogProps) 
   };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => { setOpen(isOpen); if(!isOpen) { setMessage(""); setSelectedExercises([]); } }}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          setMessage("");
+          setSelectedExercises([]);
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button className="relative flex items-center gap-2 bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold px-6 py-3 rounded-xl overflow-hidden group">
           <div className="absolute inset-0 bg-neutral-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
@@ -134,22 +150,25 @@ export default function WorkoutDialog({ onWorkoutCreated }: WorkoutDialogProps) 
 
           {/* Exercise selection */}
           <div className="max-h-64 overflow-y-auto border border-neutral-800 rounded-xl p-3 bg-neutral-900">
-            {exercises.map((ex) => (
-              <label
-                key={ex.id}
-                className="flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-neutral-800 rounded-lg transition-colors"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedExercises.includes(ex.id)}
-                  onChange={() => toggleExercise(ex.id)}
-                  className="w-4 h-4 accent-blue-500"
-                  disabled={loading}
-                />
-                <span className="text-white">{ex.name}</span>
-              </label>
-            ))}
-            {exercises.length === 0 && <p className="text-neutral-400 text-sm">No exercises found</p>}
+            {(exercises || []).length > 0 ? (
+              (exercises || []).map((ex) => (
+                <label
+                  key={ex.id}
+                  className="flex items-center gap-3 py-2 px-3 cursor-pointer hover:bg-neutral-800 rounded-lg transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedExercises.includes(ex.id)}
+                    onChange={() => toggleExercise(ex.id)}
+                    className="w-4 h-4 accent-blue-500"
+                    disabled={loading}
+                  />
+                  <span className="text-white">{ex.name}</span>
+                </label>
+              ))
+            ) : (
+              <p className="text-neutral-400 text-sm">No exercises found</p>
+            )}
           </div>
 
           {message && (
