@@ -135,7 +135,7 @@ export default function Exercise() {
             {exercises.map((ex, index) => (
               <div
                 key={ex.id}
-                className="group  rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-neutral-800 hover:border-white hover:-translate-y-1"
+                className="elative group rounded-2xl backdrop-blur-xl border border-neutral-800/70 shadow-lg hover:shadow-black/50 dark:hover:shadow-white/50 transition-all duration-500 overflow-hidden p-[1px]"
                 style={{
                   animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`,
                 }}

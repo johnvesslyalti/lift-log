@@ -125,7 +125,7 @@ export default function WorkoutsPage() {
             {workouts.map((w, index) => (
               <article
                 key={w.id}
-                className="relative group rounded-2xl backdrop-blur-xl border border-neutral-800/70 shadow-lg hover:shadow-white/50 transition-all duration-500 overflow-hidden p-[1px]"
+                className="relative group rounded-2xl backdrop-blur-xl border border-neutral-800/70 shadow-lg hover:shadow-black/50 dark:hover:shadow-white/50 transition-all duration-500 overflow-hidden p-[1px]"
                 style={{
                   animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`,
                 }}
