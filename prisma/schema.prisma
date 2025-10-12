@@ -9,21 +9,20 @@ datasource db {
 }
 
 model User {
-    id             String           @id
-    name           String
-    email          String           @unique
-    emailVerified  Boolean          @default(false)
-    image          String?
-    height         Float?
-    weight         Float?
-    createdAt      DateTime         @default(now())
-    updatedAt      DateTime         @default(now()) @updatedAt
-    exercises      Exercise[]
-    progress       Progress[]
-    workouts       Workout[]
-    workoutSession WorkoutSession[]
-    accounts       Account[]
-    sessions       Session[]
+    id              String            @id
+    name            String
+    email           String            @unique
+    emailVerified   Boolean           @default(false)
+    image           String?
+    height          Float?
+    weight          Float?
+    createdAt       DateTime          @default(now())
+    updatedAt       DateTime          @default(now()) @updatedAt
+    exercises       Exercise[]
+    workouts        Workout[]
+    accounts        Account[]
+    sessions        Session[]
+    workoutProgress WorkoutProgress[]
 
     @@map("user")
 }
@@ -77,10 +76,10 @@ model Workout {
     userId           String
     name             String
     createdAt        DateTime          @default(now())
-    updatedAt        DateTime          @updatedAt
+    updatedAt        DateTime          @default(now()) @updatedAt
     user             User              @relation(fields: [userId], references: [id])
     workoutExercises WorkoutExercise[]
-    workoutSessions  WorkoutSession[]
+    workoutProgress  WorkoutProgress[]
 }
 
 model WorkoutExercise {
@@ -101,29 +100,27 @@ model Exercise {
     user             User              @relation(fields: [userId], references: [id])
     workoutExercises WorkoutExercise[]
     createdAt        DateTime          @default(now())
-    updatedAt        DateTime          @default(now())@updatedAt
+    updatedAt        DateTime          @default(now()) @updatedAt
 }
 
-model WorkoutSession {
-    id             Int      @id @default(autoincrement())
+model WorkoutProgress {
+    id             Int       @id @default(autoincrement())
     userId         String
-    workoutId      Int
-    startTime      DateTime
-    endTime        DateTime
+    workoutId      Int? // Optional — can log progress without a specific workout
+    date           DateTime  @default(now()) // general progress date
+    startTime      DateTime? // Optional — if workout session tracked
+    endTime        DateTime?
+    duration       Int? // in minutes (optional derived from start/end)
+    weight         Float?
     caloriesBurned Float?
-    createdAt      DateTime @default(now())
-    updatedAt      DateTime @updatedAt
-    user           User     @relation(fields: [userId], references: [id])
-    workout        Workout  @relation(fields: [workoutId], references: [id])
-}
+    streak         Int? // optional streak count for consecutive days
+    notes          String? // optional comment or note for the day
+    createdAt      DateTime  @default(now())
+    updatedAt      DateTime  @updatedAt
 
-model Progress {
-    id        Int      @id @default(autoincrement())
-    userId    String
-    date      DateTime @default(now())
-    weight    Float?
-    streak    Int
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    user      User     @relation(fields: [userId], references: [id])
+    // Relations
+    user    User     @relation(fields: [userId], references: [id])
+    workout Workout? @relation(fields: [workoutId], references: [id])
+
+    @@map("workout_progress")
 }

@@ -158,7 +158,7 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
                     key={s.id}
                     className="bg-neutral-900 p-3 rounded-xl flex justify-between items-center text-white"
                   >
-                    <span>{s.workout.name}</span>
+                    <span>{s.workout.name ?? "unnamed workout"}</span>
                     <span className="text-neutral-400 text-sm">
                       {new Date(s.startTime).toLocaleDateString()}{" "}
                       {s.caloriesBurned ? `- ${s.caloriesBurned} cal` : ""}

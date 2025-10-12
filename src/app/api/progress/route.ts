@@ -1,5 +1,5 @@
+import { PrismaClient } from "@/generated/prisma";
 import { auth } from "@/lib/auth";
-import { PrismaClient } from "@prisma/client";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
