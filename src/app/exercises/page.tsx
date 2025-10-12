@@ -115,9 +115,7 @@ export default function Exercise() {
             <div className=" w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
               <BiDumbbell className="text-5xl " />
             </div>
-            <h3 className="text-2xl font-bold  mb-3">
-              No Exercises Yet
-            </h3>
+            <h3 className="text-2xl font-bold  mb-3">No Exercises Yet</h3>
             <p className="mb-6 max-w-md mx-auto">
               Start tracking your fitness journey by adding your first exercise
               using the button above!
@@ -165,8 +163,13 @@ export default function Exercise() {
 
                 {/* Card Body */}
                 <div className="p-6">
-                  <h3 className="text-xl font-bold  mb-3 line-clamp-2">
-                    {ex.name.charAt(0).toUpperCase() + ex.name.slice(1)}
+                  <h3 className="text-xl font-bold mb-3 line-clamp-2">
+                    {ex.name
+                      .split(" ")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                      )
+                      .join(" ")}
                   </h3>
 
                   {ex.category && (
@@ -186,9 +189,7 @@ export default function Exercise() {
                           Sets
                         </span>
                       </div>
-                      <p className="text-2xl font-bold ">
-                        {ex.sets || 0}
-                      </p>
+                      <p className="text-2xl font-bold ">{ex.sets || 0}</p>
                     </div>
                     <div className=" rounded-xl p-4 border border-neutral-800">
                       <div className="flex items-center gap-2 mb-1">
@@ -197,9 +198,7 @@ export default function Exercise() {
                           Reps
                         </span>
                       </div>
-                      <p className="text-2xl font-bold ">
-                        {ex.reps || 0}
-                      </p>
+                      <p className="text-2xl font-bold ">{ex.reps || 0}</p>
                     </div>
                   </div>
                   {/* Total Volume */}
