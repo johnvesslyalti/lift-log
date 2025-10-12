@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import WorkoutDialog from "./workout-dialog";
 import { MdFitnessCenter } from "react-icons/md";
 import Loading from "@/components/loading";
+import { handleError } from "@/components/error-handle";
 
 interface Exercise {
   id: string;
@@ -38,8 +39,7 @@ export default function WorkoutsPage() {
       setWorkouts(data || []);
       setStatus("success");
     } catch (error) {
-      setErrorMessage("Failed to load workouts. Try again later.");
-      setStatus("error");
+      handleError(error)
     }
   }, []);
 
@@ -52,22 +52,22 @@ export default function WorkoutsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black p-6 md:p-8">
+    <div className="min-h-screen p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <header
-          className="bg-neutral-950 rounded-2xl shadow-xl p-6 md:p-8 mb-8 border border-neutral-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+          className="rounded-2xl shadow-xl p-6 md:p-8 mb-8 border border-neutral-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
           aria-label="Workouts header"
         >
           <div className="flex items-center gap-4">
             <div
-              className="bg-neutral-900 p-4 rounded-2xl shadow-lg"
+              className="p-4 rounded-2xl shadow-lg"
               aria-hidden="true"
             >
-              <MdFitnessCenter className="text-3xl text-white" />
+              <MdFitnessCenter className="text-3xl" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white">My Workouts</h1>
+              <h1 className="text-3xl font-bold">My Workouts</h1>
               <p
                 className="text-neutral-400 mt-1"
                 aria-live="polite"
@@ -91,7 +91,7 @@ export default function WorkoutsPage() {
             <p>{errorMessage}</p>
             <button
               onClick={fetchWorkouts}
-              className="mt-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+              className="mt-4 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg"
               aria-label="Retry loading workouts"
             >
               Retry
@@ -106,10 +106,10 @@ export default function WorkoutsPage() {
             aria-live="polite"
             aria-atomic="true"
           >
-            <h3 className="text-2xl font-bold text-white mb-3">
+            <h3 className="text-2xl font-bold mb-3">
               No Workouts Yet
             </h3>
-            <p className="text-neutral-400 mb-6 max-w-md mx-auto">
+            <p className="mb-6 max-w-md mx-auto">
               Start tracking your fitness journey by adding your first workout
               using the button above!
             </p>
@@ -125,7 +125,7 @@ export default function WorkoutsPage() {
             {workouts.map((w, index) => (
               <article
                 key={w.id}
-                className="relative group rounded-2xl bg-gradient-to-br from-neutral-900/80 to-neutral-950/90 backdrop-blur-xl border border-neutral-800/70 shadow-lg hover:shadow-white/10 transition-all duration-500 overflow-hidden p-[1px]"
+                className="relative group rounded-2xl backdrop-blur-xl border border-neutral-800/70 shadow-lg hover:shadow-white/50 transition-all duration-500 overflow-hidden p-[1px]"
                 style={{
                   animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`,
                 }}
@@ -133,19 +133,19 @@ export default function WorkoutsPage() {
                 aria-labelledby={`workout-title-${w.id}`}
               >
                 {/* Glow border effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"></div>
+                <div className="absolute inset-0 bg-gradient-to-br via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"></div>
 
                 {/* Card content */}
-                <div className="relative z-10 bg-neutral-950/60 p-6 rounded-2xl backdrop-blur-md">
+                <div className="relative z-10 p-6 rounded-2xl backdrop-blur-md">
                   <div className="flex justify-between items-start">
                     <h3
                       id={`workout-title-${w.id}`}
-                      className="text-2xl font-semibold text-white tracking-tight"
+                      className="text-2xl font-semibold tracking-tight"
                     >
                       {w.name}
                     </h3>
 
-                    <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-neutral-300 border border-neutral-700">
+                    <span className="text-xs px-3 py-1 rounded-full border">
                       {w.workoutExercises?.length || 0}{" "}
                       {w.workoutExercises?.length === 1
                         ? "Exercise"
@@ -154,7 +154,7 @@ export default function WorkoutsPage() {
                   </div>
 
                   <p
-                    className="text-neutral-400 mt-3 text-sm leading-relaxed"
+                    className="mt-3 text-sm leading-relaxed"
                     aria-label={`Exercises: ${w.workoutExercises?.length || 0}`}
                   >
                     {w.workoutExercises?.length
@@ -165,7 +165,7 @@ export default function WorkoutsPage() {
 
                   {/* Hover actions */}
                   <div className="flex justify-end mt-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <button className="px-4 py-2 text-sm rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium border border-neutral-700 transition-colors duration-300">
+                    <button className="px-4 py-2 text-sm rounded-xl font-medium border transition-colors duration-300">
                       View Details
                     </button>
                   </div>

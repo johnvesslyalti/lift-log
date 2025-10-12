@@ -111,8 +111,8 @@ export default function WorkoutDialog({ onWorkoutCreated }: WorkoutDialogProps) 
       }}
     >
       <DialogTrigger asChild>
-        <Button className="relative flex items-center gap-2 bg-black text-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold px-6 py-3 rounded-xl overflow-hidden group">
-          <div className="absolute inset-0 bg-neutral-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+        <Button className="relative flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold px-6 py-3 rounded-xl overflow-hidden group">
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
           <IoMdAdd className="text-xl relative z-10" />
           <span className="relative z-10">Add Workout</span>
         </Button>
@@ -199,7 +199,7 @@ export default function WorkoutDialog({ onWorkoutCreated }: WorkoutDialogProps) 
             <Button
               onClick={handleCreateWorkout}
               disabled={loading || !name.trim()}
-              className="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-base h-12"
+              className="flex-1 hover:bg-neutral-800 font-bold py-3 rounded-xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-base h-12"
             >
               {loading ? "Creating..." : "Save Workout"}
             </Button>
