@@ -20,11 +20,11 @@ import { BiDumbbell } from "react-icons/bi";
 import { FiRepeat } from "react-icons/fi";
 import { Circle } from "lucide-react";
 
-interface ExerciseModalProps {
+interface ExerciseDialogProps {
   onsuccess?: () => void;
 }
 
-export default function ExerciseModal({ onsuccess }: ExerciseModalProps) {
+export default function ExerciseDialog({ onsuccess }: ExerciseDialogProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [sets, setSets] = useState("");

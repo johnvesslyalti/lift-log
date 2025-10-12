@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import ExerciseModal from "./exercise-dialog";
+import ExerciseDialog from "./exercise-dialog";
 import { handleError } from "@/components/error-handle";
 import { MdFitnessCenter, MdDelete } from "react-icons/md";
 import { FiRepeat } from "react-icons/fi";
@@ -95,7 +95,7 @@ export default function Exercise() {
                 </p>
               </div>
             </div>
-            <ExerciseModal onsuccess={fetchExercises} />
+            <ExerciseDialog onsuccess={fetchExercises} />
           </div>
         </div>
 
