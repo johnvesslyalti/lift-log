@@ -29,15 +29,11 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
   const [open, setOpen] = useState(false);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [selectedWorkout, setSelectedWorkout] = useState<number | null>(null);
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
   const [weight, setWeight] = useState("");
   const [calories, setCalories] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error">(
-    "success"
-  );
+  const [messageType, setMessageType] = useState<"success" | "error">("success");
 
   const showMessage = (text: string, type: "success" | "error") => {
     setMessage(text);
@@ -57,7 +53,7 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
         "error"
       );
     }
-  }, []); // stable reference
+  }, []);
 
   useEffect(() => {
     if (open) fetchWorkouts();
@@ -65,8 +61,6 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
 
   const resetForm = () => {
     setSelectedWorkout(null);
-    setStartTime("");
-    setEndTime("");
     setWeight("");
     setCalories("");
     setMessage("");
@@ -79,6 +73,7 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
   ) => {
     setter(String((Number(currentValue) || 0) + step));
   };
+
   const decrementValue = (
     setter: (v: string) => void,
     currentValue: string,
@@ -95,8 +90,8 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
   };
 
   const saveProgress = async () => {
-    if (!selectedWorkout || !startTime) {
-      showMessage("Workout and start time are required!", "error");
+    if (!selectedWorkout) {
+      showMessage("Workout is required!", "error");
       return;
     }
     setLoading(true);
@@ -107,8 +102,6 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           workoutId: selectedWorkout,
-          startTime,
-          endTime: endTime || null,
           weight: weight ? parseFloat(weight) : null,
           caloriesBurned: calories ? parseFloat(calories) : null,
         }),
@@ -192,34 +185,6 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
             </select>
           </div>
 
-          {/* Start / End Time */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="font-semibold text-white">
-                Start Time <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                type="datetime-local"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                onKeyPress={handleKeyPress}
-                disabled={loading}
-                className="border-2 border-neutral-800 focus:border-neutral-200 focus:ring-4 focus:ring-neutral-900 rounded-xl shadow-sm bg-neutral-950 text-white h-12 px-4"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="font-semibold text-white">End Time</Label>
-              <Input
-                type="datetime-local"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                onKeyPress={handleKeyPress}
-                disabled={loading}
-                className="border-2 border-neutral-800 focus:border-neutral-200 focus:ring-4 focus:ring-neutral-900 rounded-xl shadow-sm bg-neutral-950 text-white h-12 px-4"
-              />
-            </div>
-          </div>
-
           {/* Weight / Calories */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -294,7 +259,11 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
           {/* Message */}
           {message && (
             <div
-              className={`flex items-center gap-3 p-4 rounded-xl text-sm font-medium transition-all duration-300 shadow-md ${messageType === "success" ? "bg-neutral-900 text-green-400 border-2 border-green-900" : "bg-neutral-900 text-red-400 border-2 border-red-900"}`}
+              className={`flex items-center gap-3 p-4 rounded-xl text-sm font-medium transition-all duration-300 shadow-md ${
+                messageType === "success"
+                  ? "bg-neutral-900 text-green-400 border-2 border-green-900"
+                  : "bg-neutral-900 text-red-400 border-2 border-red-900"
+              }`}
             >
               {messageType === "success" ? (
                 <AiOutlineCheckCircle className="text-xl flex-shrink-0" />
@@ -318,7 +287,7 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
             </Button>
             <Button
               onClick={saveProgress}
-              disabled={loading || !selectedWorkout || !startTime}
+              disabled={loading || !selectedWorkout}
               className="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-base h-12"
             >
               {loading ? (

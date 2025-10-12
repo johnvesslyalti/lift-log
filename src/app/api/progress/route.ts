@@ -5,11 +5,9 @@ import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-// Type for request body
+// Type for request body (startTime & endTime removed)
 interface ProgressRequestBody {
   workoutId: number;
-  startTime: string;
-  endTime?: string;
   weight?: number;
   caloriesBurned?: number;
 }
@@ -21,8 +19,8 @@ export async function GET() {
   try {
     const progress = await prisma.progress.findMany({
       where: { userId: session.user.id },
-      orderBy: { startTime: "desc" },
-      include: { workout: true }, // Include workout details for frontend
+      orderBy: { id: "desc" }, // ordering by id since startTime is removed
+      include: { workout: true },
     });
 
     return NextResponse.json(progress);
@@ -41,44 +39,24 @@ export async function POST(req: Request) {
 
   try {
     const body: ProgressRequestBody = await req.json();
+    const { workoutId, weight, caloriesBurned } = body;
 
-    const { workoutId, startTime, endTime, weight, caloriesBurned } = body;
-
-    if (!workoutId || !startTime) {
+    if (!workoutId) {
       return NextResponse.json(
-        { message: "Workout ID and start time are required" },
+        { message: "Workout ID is required" },
         { status: 400 }
       );
     }
 
-    // Fetch last progress entry for streak calculation
-    const lastProgress = await prisma.progress.findFirst({
-      where: { userId: session.user.id },
-      orderBy: { startTime: "desc" },
-    });
-
-    const lastDate = lastProgress?.startTime ? new Date(lastProgress.startTime) : null;
-    const newStartDate = new Date(startTime);
-
-    let newStreak = 1;
-    if (lastDate) {
-      const diffDays = (newStartDate.getTime() - lastDate.getTime()) / (1000 * 3600 * 24);
-      if (diffDays < 2) {
-        newStreak = (lastProgress?.streak ?? 0) + 1;
-      }
-    }
-
+    // Create a new progress entry without time fields
     const progress = await prisma.progress.create({
       data: {
         userId: session.user.id,
         workoutId,
-        startTime: newStartDate,
-        endTime: endTime ? new Date(endTime) : null,
         weight: weight ?? null,
         caloriesBurned: caloriesBurned ?? null,
-        streak: newStreak,
       },
-      include: { workout: true }, // Include workout for frontend display
+      include: { workout: true },
     });
 
     return NextResponse.json(progress);

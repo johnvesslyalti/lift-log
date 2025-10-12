@@ -108,8 +108,6 @@ model Progress {
     userId         String
     workoutId      Int? // Optional — can log progress without a specific workout
     date           DateTime  @default(now()) // general progress date
-    startTime      DateTime? // Optional — if workout session tracked
-    endTime        DateTime?
     duration       Int? // in minutes (optional derived from start/end)
     weight         Float?
     caloriesBurned Float?
