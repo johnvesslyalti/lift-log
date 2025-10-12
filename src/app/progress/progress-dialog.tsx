@@ -1,10 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { AiOutlineCheckCircle, AiOutlineWarning } from "react-icons/ai";
 import { BiDumbbell } from "react-icons/bi";
 import { Circle } from "lucide-react";
@@ -28,7 +35,9 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
   const [calories, setCalories] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error">("success");
+  const [messageType, setMessageType] = useState<"success" | "error">(
+    "success"
+  );
 
   const showMessage = (text: string, type: "success" | "error") => {
     setMessage(text);
@@ -36,20 +45,23 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
     setTimeout(() => setMessage(""), 3000);
   };
 
-  const fetchWorkouts = async () => {
+  const fetchWorkouts = useCallback(async () => {
     try {
       const res = await fetch("/api/workout");
       if (!res.ok) throw new Error("Failed to fetch workouts");
       const data = await res.json();
       setWorkouts(data);
     } catch (err: unknown) {
-      showMessage(err instanceof Error ? err.message : "Error fetching workouts", "error");
+      showMessage(
+        err instanceof Error ? err.message : "Error fetching workouts",
+        "error"
+      );
     }
-  };
+  }, []); // stable reference
 
   useEffect(() => {
     if (open) fetchWorkouts();
-  });
+  }, [open, fetchWorkouts]);
 
   const resetForm = () => {
     setSelectedWorkout(null);
@@ -60,10 +72,18 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
     setMessage("");
   };
 
-  const incrementValue = (setter: (v: string) => void, currentValue: string, step: number = 1) => {
+  const incrementValue = (
+    setter: (v: string) => void,
+    currentValue: string,
+    step: number = 1
+  ) => {
     setter(String((Number(currentValue) || 0) + step));
   };
-  const decrementValue = (setter: (v: string) => void, currentValue: string, step: number = 1) => {
+  const decrementValue = (
+    setter: (v: string) => void,
+    currentValue: string,
+    step: number = 1
+  ) => {
     const current = Number(currentValue) || 0;
     if (current - step >= 0) setter(String(current - step));
   };
@@ -102,14 +122,23 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
       onsuccess?.();
       setTimeout(() => setOpen(false), 1200);
     } catch (err: unknown) {
-      showMessage(err instanceof Error ? err.message : "Error saving progress", "error");
+      showMessage(
+        err instanceof Error ? err.message : "Error saving progress",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => { setOpen(isOpen); if (!isOpen) resetForm(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) resetForm();
+      }}
+    >
       <DialogTrigger asChild>
         <Button className="relative flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold px-6 py-3 rounded-xl overflow-hidden group">
           <div className="absolute inset-0 bg-neutral-900 opacity-0 transition-opacity duration-300" />
@@ -128,7 +157,9 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
                 <BiDumbbell className="text-4xl text-white" />
               </div>
               <div className="flex-1">
-                <DialogTitle className="text-3xl font-bold mb-1 text-white">Log Progress</DialogTitle>
+                <DialogTitle className="text-3xl font-bold mb-1 text-white">
+                  Log Progress
+                </DialogTitle>
                 <DialogDescription className="text-neutral-400 text-base">
                   Track your workout session
                 </DialogDescription>
@@ -150,9 +181,13 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
               className="w-full border-2 border-neutral-800 focus:border-neutral-200 focus:ring-4 focus:ring-neutral-900 rounded-xl shadow-sm bg-neutral-950 text-white h-12 px-4"
               disabled={loading}
             >
-              <option value="" disabled>Select a workout</option>
+              <option value="" disabled>
+                Select a workout
+              </option>
               {workouts.map((w) => (
-                <option key={w.id} value={w.id}>{w.name}</option>
+                <option key={w.id} value={w.id}>
+                  {w.name}
+                </option>
               ))}
             </select>
           </div>
@@ -160,7 +195,9 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
           {/* Start / End Time */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="font-semibold text-white">Start Time <span className="text-red-500">*</span></Label>
+              <Label className="font-semibold text-white">
+                Start Time <span className="text-red-500">*</span>
+              </Label>
               <Input
                 type="datetime-local"
                 value={startTime}
@@ -198,14 +235,30 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
                   className="border-2 border-neutral-800 focus:border-neutral-200 focus:ring-4 focus:ring-neutral-900 rounded-xl shadow-sm bg-neutral-950 text-white h-12 text-center"
                 />
                 <div className="absolute right-1 top-1 bottom-1 flex flex-col">
-                  <button type="button" onClick={() => incrementValue(setWeight, weight, 0.5)} className="flex-1 px-2 hover:bg-neutral-900 text-neutral-200 rounded-t-lg" disabled={loading}>▲</button>
-                  <button type="button" onClick={() => decrementValue(setWeight, weight, 0.5)} className="flex-1 px-2 hover:bg-neutral-900 text-neutral-200 rounded-b-lg" disabled={loading}>▼</button>
+                  <button
+                    type="button"
+                    onClick={() => incrementValue(setWeight, weight, 0.5)}
+                    className="flex-1 px-2 hover:bg-neutral-900 text-neutral-200 rounded-t-lg"
+                    disabled={loading}
+                  >
+                    ▲
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => decrementValue(setWeight, weight, 0.5)}
+                    className="flex-1 px-2 hover:bg-neutral-900 text-neutral-200 rounded-b-lg"
+                    disabled={loading}
+                  >
+                    ▼
+                  </button>
                 </div>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label className="font-semibold text-white">Calories Burned</Label>
+              <Label className="font-semibold text-white">
+                Calories Burned
+              </Label>
               <div className="relative">
                 <Input
                   type="number"
@@ -217,8 +270,22 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
                   className="border-2 border-neutral-800 focus:border-neutral-200 focus:ring-4 focus:ring-neutral-900 rounded-xl shadow-sm bg-neutral-950 text-white h-12 text-center"
                 />
                 <div className="absolute right-1 top-1 bottom-1 flex flex-col">
-                  <button type="button" onClick={() => incrementValue(setCalories, calories, 5)} className="flex-1 px-2 hover:bg-neutral-900 text-neutral-200 rounded-t-lg" disabled={loading}>▲</button>
-                  <button type="button" onClick={() => decrementValue(setCalories, calories, 5)} className="flex-1 px-2 hover:bg-neutral-900 text-neutral-200 rounded-b-lg" disabled={loading}>▼</button>
+                  <button
+                    type="button"
+                    onClick={() => incrementValue(setCalories, calories, 5)}
+                    className="flex-1 px-2 hover:bg-neutral-900 text-neutral-200 rounded-t-lg"
+                    disabled={loading}
+                  >
+                    ▲
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => decrementValue(setCalories, calories, 5)}
+                    className="flex-1 px-2 hover:bg-neutral-900 text-neutral-200 rounded-b-lg"
+                    disabled={loading}
+                  >
+                    ▼
+                  </button>
                 </div>
               </div>
             </div>
@@ -226,27 +293,57 @@ export default function ProgressDialog({ onsuccess }: ProgressDialogProps) {
 
           {/* Message */}
           {message && (
-            <div className={`flex items-center gap-3 p-4 rounded-xl text-sm font-medium transition-all duration-300 shadow-md ${messageType === "success" ? "bg-neutral-900 text-green-400 border-2 border-green-900" : "bg-neutral-900 text-red-400 border-2 border-red-900"}`}>
-              {messageType === "success" ? <AiOutlineCheckCircle className="text-xl flex-shrink-0"/> : <AiOutlineWarning className="text-xl flex-shrink-0"/>}
+            <div
+              className={`flex items-center gap-3 p-4 rounded-xl text-sm font-medium transition-all duration-300 shadow-md ${messageType === "success" ? "bg-neutral-900 text-green-400 border-2 border-green-900" : "bg-neutral-900 text-red-400 border-2 border-red-900"}`}
+            >
+              {messageType === "success" ? (
+                <AiOutlineCheckCircle className="text-xl flex-shrink-0" />
+              ) : (
+                <AiOutlineWarning className="text-xl flex-shrink-0" />
+              )}
               <span>{message}</span>
             </div>
           )}
 
           {/* Buttons */}
           <div className="flex gap-4 pt-4">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={loading} className="flex-1 border-2 border-neutral-800 hover:bg-neutral-900 hover:border-neutral-700 text-white font-semibold py-3 rounded-xl transition-all text-base h-12 bg-black">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              disabled={loading}
+              className="flex-1 border-2 border-neutral-800 hover:bg-neutral-900 hover:border-neutral-700 text-white font-semibold py-3 rounded-xl transition-all text-base h-12 bg-black"
+            >
               Cancel
             </Button>
-            <Button onClick={saveProgress} disabled={loading || !selectedWorkout || !startTime} className="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-base h-12">
+            <Button
+              onClick={saveProgress}
+              disabled={loading || !selectedWorkout || !startTime}
+              className="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-base h-12"
+            >
               {loading ? (
                 <span className="flex items-center gap-2">
                   <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <Circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                    <Circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
                   </svg>
                   Saving...
                 </span>
-              ) : "Save Progress"}
+              ) : (
+                "Save Progress"
+              )}
             </Button>
           </div>
         </div>
