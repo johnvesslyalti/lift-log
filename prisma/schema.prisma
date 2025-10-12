@@ -9,20 +9,20 @@ datasource db {
 }
 
 model User {
-    id              String            @id
-    name            String
-    email           String            @unique
-    emailVerified   Boolean           @default(false)
-    image           String?
-    height          Float?
-    weight          Float?
-    createdAt       DateTime          @default(now())
-    updatedAt       DateTime          @default(now()) @updatedAt
-    exercises       Exercise[]
-    workouts        Workout[]
-    accounts        Account[]
-    sessions        Session[]
-    workoutProgress WorkoutProgress[]
+    id            String     @id
+    name          String
+    email         String     @unique
+    emailVerified Boolean    @default(false)
+    image         String?
+    height        Float?
+    weight        Float?
+    createdAt     DateTime   @default(now())
+    updatedAt     DateTime   @default(now()) @updatedAt
+    exercises     Exercise[]
+    workouts      Workout[]
+    accounts      Account[]
+    sessions      Session[]
+    progress      Progress[]
 
     @@map("user")
 }
@@ -79,7 +79,7 @@ model Workout {
     updatedAt        DateTime          @default(now()) @updatedAt
     user             User              @relation(fields: [userId], references: [id])
     workoutExercises WorkoutExercise[]
-    workoutProgress  WorkoutProgress[]
+    progress         Progress[]
 }
 
 model WorkoutExercise {
@@ -103,7 +103,7 @@ model Exercise {
     updatedAt        DateTime          @default(now()) @updatedAt
 }
 
-model WorkoutProgress {
+model Progress {
     id             Int       @id @default(autoincrement())
     userId         String
     workoutId      Int? // Optional — can log progress without a specific workout
