@@ -8,26 +8,14 @@ import { AiOutlineCheckCircle } from "react-icons/ai";
 import Loading from "@/components/loading";
 import ProgressDialog from "./progress-dialog";
 
-interface Workout {
-  id: number;
-  name: string;
-  sets: number;
-  reps: number;
-  category: string;
-}
-
-interface ProgressEntry {
-  id: number;
-  workoutId: number;
-  weight?: number;
-  caloriesBurned?: number;
-  streak: number;
-  workout: Workout;
-  createdAt: string;
+interface DailySummary {
+  date: string; // 'YYYY-MM-DD'
+  calories: number;
+  weight: number | null;
 }
 
 export default function Progress() {
-  const [progress, setProgress] = useState<ProgressEntry[]>([]);
+  const [progress, setProgress] = useState<DailySummary[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
@@ -39,7 +27,7 @@ export default function Progress() {
       const res = await fetch("/api/progress");
       if (!res.ok) throw new Error(`Failed to fetch progress (${res.status})`);
 
-      const data: ProgressEntry[] = await res.json();
+      const data: DailySummary[] = await res.json();
       setProgress(data || []);
     } catch (err: unknown) {
       const e = handleError(err);
@@ -55,27 +43,28 @@ export default function Progress() {
 
   if (loading) return <Loading text="progress entries" />;
 
-  const today = new Date();
-  const getDayProgress = (daysAgo: number) => {
-    const targetDate = new Date(today);
-    targetDate.setDate(today.getDate() - daysAgo);
-
-    const targetDateString = targetDate.toDateString();
-
-    return progress.filter(
-      (p) => new Date(p.createdAt).toDateString() === targetDateString
-    );
+  // Helper: format a date as YYYY-MM-DD in local time
+  const formatLocalDate = (date: Date) => {
+    return date.toLocaleDateString("en-CA"); // YYYY-MM-DD
   };
 
-  const todayProgress = getDayProgress(0);
-  const yesterdayProgress = getDayProgress(1);
-  const dayBeforeYesterdayProgress = getDayProgress(2);
+  const today = new Date();
 
-  const sections = [
-    { title: "Today", data: todayProgress },
-    { title: "Yesterday", data: yesterdayProgress },
-    { title: "Day Before Yesterday", data: dayBeforeYesterdayProgress },
-  ];
+  // Generate last 7 days summary
+  const weeklyData = Array.from({ length: 7 }).map((_, i) => {
+    const day = new Date(today);
+    day.setDate(today.getDate() - (6 - i)); // from oldest to today
+    const dayStr = formatLocalDate(day);
+
+    // Find progress entry for this date
+    const dayProgress = progress.find((p) => p.date === dayStr);
+
+    return {
+      date: dayStr,
+      calories: dayProgress?.calories || 0,
+      weight: dayProgress?.weight ?? null,
+    };
+  });
 
   return (
     <div className="min-h-screen p-6 md:p-8">
@@ -89,7 +78,11 @@ export default function Progress() {
             <div>
               <h1 className="text-3xl font-bold">My Progress</h1>
               <p className="text-neutral-400 mt-1">
-                {progress.length} {progress.length === 1 ? "entry" : "entries"} tracked
+                {weeklyData.filter((d) => d.calories > 0).length}{" "}
+                {weeklyData.filter((d) => d.calories > 0).length === 1
+                  ? "day"
+                  : "days"}{" "}
+                tracked
               </p>
             </div>
           </div>
@@ -121,46 +114,31 @@ export default function Progress() {
           </div>
         )}
 
-        {/* Daily Progress Sections */}
-        {sections.map(({ title, data }) => (
-          <div key={title} className="dark:bg-neutral-950 rounded-2xl border border-neutral-800 shadow-lg p-6">
-            <h2 className="text-2xl font-semibold mb-4">{title}</h2>
-            {data.length === 0 ? (
-              <p className="text-neutral-500">No workouts recorded.</p>
-            ) : (
-              <ul className="space-y-4">
-                {data.map((p) => (
-                  <li
-                    key={p.id}
-                    className="p-4 rounded-xl border border-neutral-800 hover:border-white transition-all"
-                  >
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="text-lg font-bold">
-                          {p.workout.name.charAt(0).toUpperCase() + p.workout.name.slice(1)}
-                        </h3>
-                        <p className="text-sm text-neutral-400">
-                          {p.workout.sets} sets × {p.workout.reps} reps
-                        </p>
-                        {p.weight && (
-                          <p className="text-sm mt-1">
-                            <strong>Weight:</strong> {p.weight} kg
-                          </p>
-                        )}
-                        {p.caloriesBurned && (
-                          <p className="text-sm">
-                            <strong>Calories:</strong> {p.caloriesBurned} kcal
-                          </p>
-                        )}
-                      </div>
-                      <span className="text-sm text-neutral-500">
-                        🏆 Streak: {p.streak} {p.streak === 1 ? "day" : "days"}
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
+        {/* Weekly Progress */}
+        {weeklyData.map((day) => (
+          <div
+            key={day.date}
+            className="dark:bg-neutral-950 rounded-2xl border border-neutral-800 shadow-lg p-6"
+          >
+            <h2 className="text-2xl font-semibold mb-4">
+              {new Date(day.date).toLocaleDateString(undefined, {
+                weekday: "long",
+                month: "short",
+                day: "numeric",
+              })}
+            </h2>
+            <ul>
+              <li className="p-4 rounded-xl border border-neutral-800 hover:border-white transition-all flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-neutral-400">
+                    Calories: {day.calories}
+                  </p>
+                  {day.weight !== null && (
+                    <p className="text-sm text-neutral-400">Weight: {day.weight} kg</p>
+                  )}
+                </div>
+              </li>
+            </ul>
           </div>
         ))}
       </div>
