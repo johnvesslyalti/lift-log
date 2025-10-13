@@ -4,28 +4,26 @@ import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { useUserStore } from "@/store/userStore";
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
+  CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
 import Loading from "@/components/loading";
 
 interface ProgressEntry {
-  id: string;
-  workout: string;
-  sets: number;
-  reps: number;
-  createdAt: string;
+  date: string; // ISO date string
+  calories: number | null;
+  weight: number | null;
 }
 
 interface ProgressStats {
   entries: ProgressEntry[];
-  totalLifts: number;
-  totalWeekLifts: number;
-  averageReps: number;
+  totalCalories: number;
+  averageWeight: number;
 }
 
 export default function Dashboard() {
@@ -38,64 +36,35 @@ export default function Dashboard() {
     try {
       const res = await fetch("/api/progress");
       if (!res.ok) throw new Error("Failed to fetch progress");
-
       const data: ProgressEntry[] = await res.json();
-      console.log("📊 /api/progress returned:", data);
 
-      if (!Array.isArray(data)) {
-        console.error("❌ API didn't return an array:", data);
+      if (!Array.isArray(data) || data.length === 0) {
         setStats({
           entries: [],
-          totalLifts: 0,
-          totalWeekLifts: 0,
-          averageReps: 0,
+          totalCalories: 0,
+          averageWeight: 0,
         });
         return;
       }
 
-      // ✅ Safe numeric calculations
-      const totalLifts = data.reduce((acc, e) => {
-        const sets = Number(e.sets);
-        const reps = Number(e.reps);
-        if (isNaN(sets) || isNaN(reps)) return acc;
-        return acc + sets * reps;
-      }, 0);
-
-      const totalWeekLifts = data
-        .filter((e) => {
-          const diff =
-            (Date.now() - new Date(e.createdAt).getTime()) /
-            (1000 * 60 * 60 * 24);
-          return diff <= 7;
-        })
-        .reduce((acc, e) => {
-          const sets = Number(e.sets);
-          const reps = Number(e.reps);
-          if (isNaN(sets) || isNaN(reps)) return acc;
-          return acc + sets * reps;
-        }, 0);
-
-      const averageReps =
-        data.length > 0
-          ? data.reduce((acc, e) => {
-              const reps = Number(e.reps);
-              return acc + (isNaN(reps) ? 0 : reps);
-            }, 0) / data.length
-          : 0;
+      const totalCalories = data.reduce(
+        (sum, e) => sum + (e.calories ?? 0),
+        0
+      );
+      const averageWeight =
+        data.reduce((sum, e) => sum + (e.weight ?? 0), 0) / data.length;
 
       setStats({
         entries: data,
-        totalLifts: isNaN(totalLifts) ? 0 : totalLifts,
-        totalWeekLifts: isNaN(totalWeekLifts) ? 0 : totalWeekLifts,
-        averageReps: isNaN(averageReps) ? 0 : averageReps,
+        totalCalories,
+        averageWeight,
       });
     } catch (err) {
-      console.error("🔥 fetchStats error:", err);
+      console.error(err);
       setStats({
         entries: [],
-        totalLifts: 0,
-        totalWeekLifts: 0,
-        averageReps: 0,
+        totalCalories: 0,
+        averageWeight: 0,
       });
     } finally {
       setLoading(false);
@@ -106,12 +75,7 @@ export default function Dashboard() {
     const getUser = async () => {
       try {
         const { data: session, error } = await authClient.getSession();
-
-        if (error) {
-          console.error("Error fetching session:", error);
-          return;
-        }
-
+        if (error) return;
         if (session?.user) {
           setUser({
             id: session.user.id,
@@ -119,11 +83,11 @@ export default function Dashboard() {
             email: session.user.email,
             image: session.user.image ?? undefined,
           });
-          setUserName(session.user.name ?? null);
+          setUserName(
+            typeof session.user.name === "string" ? session.user.name : null
+          );
         }
-      } catch (err) {
-        console.error(err);
-      }
+      } catch (err) {}
     };
 
     getUser();
@@ -134,30 +98,25 @@ export default function Dashboard() {
 
   const entries = stats?.entries ?? [];
 
-  // ✅ Ensure chartData is safe and numeric
-  const chartData = entries.map((p) => {
-    const lifts = Number(p.sets) * Number(p.reps);
-    return {
-      day: new Date(p.createdAt).toLocaleDateString("en-US", {
-        weekday: "short",
-      }),
-      lifts: isNaN(lifts) ? 0 : lifts,
-    };
-  });
+  // Rechart-friendly data
+  const chartData = entries.map((p) => ({
+    day: new Date(p.date).toLocaleDateString("en-US", {
+      weekday: "short",
+    }),
+    calories: p.calories ?? 0,
+    weight: p.weight ?? 0,
+  }));
 
-  const getEntriesForDay = (daysAgo: number) => {
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() - daysAgo);
-    const targetStr = targetDate.toDateString();
+  // Calculate today/yesterday progress for summary
+  const today = new Date().toDateString();
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
 
-    return entries.filter(
-      (e) => new Date(e.createdAt).toDateString() === targetStr
-    );
-  };
-
-  const todayEntries = getEntriesForDay(0);
-  const yesterdayEntries = getEntriesForDay(1);
-  const beforeYesterdayEntries = getEntriesForDay(2);
+  const todayEntry = entries.find(
+    (e) => new Date(e.date).toDateString() === today
+  );
+  const yesterdayEntry = entries.find(
+    (e) => new Date(e.date).toDateString() === yesterday
+  );
 
   return (
     <div className="min-h-screen p-6">
@@ -165,81 +124,100 @@ export default function Dashboard() {
         {userName ? `Welcome, ${userName}` : "Dashboard"}
       </h1>
 
-      {/* Top Stats */}
+      {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="rounded-xl shadow p-4 bg-card">
-          <h2 className="text-lg font-semibold mb-2">Total Lifts</h2>
-          <p className="text-3xl font-bold">
-            {stats?.totalLifts ?? 0}
-          </p>
-          <p className="text-gray-500 text-sm">Keep it up! 🏋️‍♂️</p>
-        </div>
-
-        <div className="rounded-xl shadow p-4 bg-card">
-          <h2 className="text-lg font-semibold mb-2">Lifts This Week</h2>
-          <p className="text-3xl font-bold">
-            {stats?.totalWeekLifts ?? 0}
-          </p>
-          <p className="text-gray-500 text-sm">Stay consistent 💪</p>
-        </div>
-
-        <div className="rounded-xl shadow p-4 bg-card">
-          <h2 className="text-lg font-semibold mb-2">Average Reps</h2>
-          <p className="text-3xl font-bold">
-            {stats ? (isNaN(stats.averageReps) ? 0 : stats.averageReps.toFixed(1)) : 0}
-          </p>
-          <p className="text-gray-500 text-sm">Steady gains 🏋️‍♀️</p>
-        </div>
+        <StatCard
+          title="Total Calories Burned"
+          value={`${stats?.totalCalories ?? 0}`}
+          subtitle="🔥 Keep pushing!"
+        />
+        <StatCard
+          title="Average Weight (kg)"
+          value={
+            stats?.averageWeight
+              ? stats.averageWeight.toFixed(1)
+              : "0"
+          }
+          subtitle="⚖️ Staying consistent!"
+        />
+        <StatCard
+          title="Active Days This Week"
+          value={entries.filter((e) => e.calories && e.calories > 0).length}
+          subtitle="💪 Great streak!"
+        />
       </div>
 
-      {/* Weekly Chart */}
+      {/* Weekly Graph */}
       <div className="rounded-xl shadow p-4 mt-6 h-64 bg-card">
-        <h2 className="text-lg font-semibold mb-2">Weekly Lifts</h2>
+        <h2 className="text-lg font-semibold mb-2">Weekly Progress</h2>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData}>
-            <XAxis dataKey="day" />
-            <YAxis />
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+            <XAxis dataKey="day" stroke="#aaa" />
+            <YAxis stroke="#aaa" />
             <Tooltip />
-            <Bar dataKey="lifts" fill="#4f46e5" radius={[4, 4, 0, 0]} />
-          </BarChart>
+            <Line
+              type="monotone"
+              dataKey="calories"
+              stroke="#f87171"
+              strokeWidth={2}
+              name="Calories Burned"
+            />
+            <Line
+              type="monotone"
+              dataKey="weight"
+              stroke="#60a5fa"
+              strokeWidth={2}
+              name="Weight (kg)"
+            />
+          </LineChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Recent 3 Days Workouts */}
+      {/* Daily Highlights */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-        <WorkoutDay title="Day Before Yesterday" entries={beforeYesterdayEntries} />
-        <WorkoutDay title="Yesterday" entries={yesterdayEntries} />
-        <WorkoutDay title="Today" entries={todayEntries} />
+        <DaySummary title="Yesterday" entry={yesterdayEntry} />
+        <DaySummary title="Today" entry={todayEntry} />
       </div>
     </div>
   );
 }
 
-function WorkoutDay({
+function StatCard({
   title,
-  entries,
+  value,
+  subtitle,
 }: {
   title: string;
-  entries: ProgressEntry[];
+  value: string | number;
+  subtitle: string;
 }) {
   return (
     <div className="rounded-xl shadow p-4 bg-card">
       <h2 className="text-lg font-semibold mb-2">{title}</h2>
-      {entries.length ? (
-        <ul className="space-y-1">
-          {entries.map((e, i) => {
-            const sets = Number(e.sets);
-            const reps = Number(e.reps);
-            return (
-              <li key={i}>
-                🏋️‍♂️ {e.workout} — {isNaN(sets) ? 0 : sets} sets ×{" "}
-                {isNaN(reps) ? 0 : reps} reps
-              </li>
-            );
-          })}
+      <p className="text-3xl font-bold">{value}</p>
+      <p className="text-gray-500 text-sm">{subtitle}</p>
+    </div>
+  );
+}
+
+function DaySummary({
+  title,
+  entry,
+}: {
+  title: string;
+  entry?: ProgressEntry;
+}) {
+  return (
+    <div className="rounded-xl shadow p-4 bg-card">
+      <h2 className="text-lg font-semibold mb-2">{title}</h2>
+      {entry ? (
+        <ul className="space-y-1 text-sm">
+          <li>🔥 Calories: {entry.calories ?? 0}</li>
+          <li>⚖️ Weight: {entry.weight ?? "N/A"} kg</li>
         </ul>
       ) : (
-        <p className="text-gray-500 text-sm">No workout logged</p>
+        <p className="text-gray-500 text-sm">No data logged</p>
       )}
     </div>
   );
