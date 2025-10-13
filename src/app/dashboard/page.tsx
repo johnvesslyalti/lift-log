@@ -11,11 +11,18 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Exercise } from "../exercises/page";
 import Loading from "@/components/loading";
 
-interface ExerciseStats {
-  exercises: Exercise[];
+interface ProgressEntry {
+  id: string;
+  workout: string;
+  sets: number;
+  reps: number;
+  createdAt: string;
+}
+
+interface ProgressStats {
+  entries: ProgressEntry[];
   totalLifts: number;
   totalWeekLifts: number;
   averageReps: number;
@@ -24,17 +31,72 @@ interface ExerciseStats {
 export default function Dashboard() {
   const setUser = useUserStore((state) => state.setUser);
   const [userName, setUserName] = useState<string | null>(null);
-  const [stats, setStats] = useState<ExerciseStats | null>(null);
+  const [stats, setStats] = useState<ProgressStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchStats = async () => {
     try {
-      const res = await fetch("/api/exercise"); // Adjust if your API route is different
-      if (!res.ok) throw new Error("Failed to fetch exercises");
-      const data: ExerciseStats = await res.json();
-      setStats(data);
+      const res = await fetch("/api/progress");
+      if (!res.ok) throw new Error("Failed to fetch progress");
+
+      const data: ProgressEntry[] = await res.json();
+      console.log("📊 /api/progress returned:", data);
+
+      if (!Array.isArray(data)) {
+        console.error("❌ API didn't return an array:", data);
+        setStats({
+          entries: [],
+          totalLifts: 0,
+          totalWeekLifts: 0,
+          averageReps: 0,
+        });
+        return;
+      }
+
+      // ✅ Safe numeric calculations
+      const totalLifts = data.reduce((acc, e) => {
+        const sets = Number(e.sets);
+        const reps = Number(e.reps);
+        if (isNaN(sets) || isNaN(reps)) return acc;
+        return acc + sets * reps;
+      }, 0);
+
+      const totalWeekLifts = data
+        .filter((e) => {
+          const diff =
+            (Date.now() - new Date(e.createdAt).getTime()) /
+            (1000 * 60 * 60 * 24);
+          return diff <= 7;
+        })
+        .reduce((acc, e) => {
+          const sets = Number(e.sets);
+          const reps = Number(e.reps);
+          if (isNaN(sets) || isNaN(reps)) return acc;
+          return acc + sets * reps;
+        }, 0);
+
+      const averageReps =
+        data.length > 0
+          ? data.reduce((acc, e) => {
+              const reps = Number(e.reps);
+              return acc + (isNaN(reps) ? 0 : reps);
+            }, 0) / data.length
+          : 0;
+
+      setStats({
+        entries: data,
+        totalLifts: isNaN(totalLifts) ? 0 : totalLifts,
+        totalWeekLifts: isNaN(totalWeekLifts) ? 0 : totalWeekLifts,
+        averageReps: isNaN(averageReps) ? 0 : averageReps,
+      });
     } catch (err) {
-      console.error(err);
+      console.error("🔥 fetchStats error:", err);
+      setStats({
+        entries: [],
+        totalLifts: 0,
+        totalWeekLifts: 0,
+        averageReps: 0,
+      });
     } finally {
       setLoading(false);
     }
@@ -68,7 +130,34 @@ export default function Dashboard() {
     fetchStats();
   }, [setUser]);
 
-  if (loading) return <Loading text="dashboard"/>;
+  if (loading) return <Loading text="dashboard" />;
+
+  const entries = stats?.entries ?? [];
+
+  // ✅ Ensure chartData is safe and numeric
+  const chartData = entries.map((p) => {
+    const lifts = Number(p.sets) * Number(p.reps);
+    return {
+      day: new Date(p.createdAt).toLocaleDateString("en-US", {
+        weekday: "short",
+      }),
+      lifts: isNaN(lifts) ? 0 : lifts,
+    };
+  });
+
+  const getEntriesForDay = (daysAgo: number) => {
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() - daysAgo);
+    const targetStr = targetDate.toDateString();
+
+    return entries.filter(
+      (e) => new Date(e.createdAt).toDateString() === targetStr
+    );
+  };
+
+  const todayEntries = getEntriesForDay(0);
+  const yesterdayEntries = getEntriesForDay(1);
+  const beforeYesterdayEntries = getEntriesForDay(2);
 
   return (
     <div className="min-h-screen p-6">
@@ -76,45 +165,38 @@ export default function Dashboard() {
         {userName ? `Welcome, ${userName}` : "Dashboard"}
       </h1>
 
+      {/* Top Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Total Lifts */}
-        <div className="rounded-xl shadow p-4">
+        <div className="rounded-xl shadow p-4 bg-card">
           <h2 className="text-lg font-semibold mb-2">Total Lifts</h2>
-          <p className="text-3xl font-bold">{stats?.totalLifts ?? 0}</p>
+          <p className="text-3xl font-bold">
+            {stats?.totalLifts ?? 0}
+          </p>
           <p className="text-gray-500 text-sm">Keep it up! 🏋️‍♂️</p>
         </div>
 
-        {/* Total Week Lifts */}
-        <div className="rounded-xl shadow p-4">
-          <h2 className="text-lg font-semibold mb-2">Total Lifts This Week</h2>
-          <p className="text-3xl font-bold">{stats?.totalWeekLifts ?? 0}</p>
-          <p className="text-gray-500 text-sm">Stay consistent 🏋️‍♂️</p>
+        <div className="rounded-xl shadow p-4 bg-card">
+          <h2 className="text-lg font-semibold mb-2">Lifts This Week</h2>
+          <p className="text-3xl font-bold">
+            {stats?.totalWeekLifts ?? 0}
+          </p>
+          <p className="text-gray-500 text-sm">Stay consistent 💪</p>
         </div>
 
-        {/* Average Reps */}
-        <div className="rounded-xl shadow p-4">
+        <div className="rounded-xl shadow p-4 bg-card">
           <h2 className="text-lg font-semibold mb-2">Average Reps</h2>
           <p className="text-3xl font-bold">
-            {stats?.averageReps.toFixed(1) ?? 0}
+            {stats ? (isNaN(stats.averageReps) ? 0 : stats.averageReps.toFixed(1)) : 0}
           </p>
-          <p className="text-gray-500 text-sm">Steady gains 🏋️‍♂️</p>
+          <p className="text-gray-500 text-sm">Steady gains 🏋️‍♀️</p>
         </div>
       </div>
 
-      {/* Weekly Lifts Chart */}
-      <div className="rounded-xl shadow p-4 mt-6 h-64">
+      {/* Weekly Chart */}
+      <div className="rounded-xl shadow p-4 mt-6 h-64 bg-card">
         <h2 className="text-lg font-semibold mb-2">Weekly Lifts</h2>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={
-              stats?.exercises.map((ex) => ({
-                day: new Date(ex.createdAt).toLocaleDateString("en-US", {
-                  weekday: "short",
-                }),
-                lifts: ex.sets * ex.reps,
-              })) ?? []
-            }
-          >
+          <BarChart data={chartData}>
             <XAxis dataKey="day" />
             <YAxis />
             <Tooltip />
@@ -123,17 +205,42 @@ export default function Dashboard() {
         </ResponsiveContainer>
       </div>
 
-      {/* Recent Workouts */}
-      <div className="rounded-xl shadow p-4 mt-6">
-        <h2 className="text-lg font-semibold mb-2">Recent Workouts</h2>
-        <ul className="space-y-1">
-          {stats?.exercises.slice(0, 5).map((ex, i) => (
-            <li key={i}>
-              🏋️‍♂️ {ex.name} — {ex.sets} sets × {ex.reps} reps
-            </li>
-          ))}
-        </ul>
+      {/* Recent 3 Days Workouts */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        <WorkoutDay title="Day Before Yesterday" entries={beforeYesterdayEntries} />
+        <WorkoutDay title="Yesterday" entries={yesterdayEntries} />
+        <WorkoutDay title="Today" entries={todayEntries} />
       </div>
+    </div>
+  );
+}
+
+function WorkoutDay({
+  title,
+  entries,
+}: {
+  title: string;
+  entries: ProgressEntry[];
+}) {
+  return (
+    <div className="rounded-xl shadow p-4 bg-card">
+      <h2 className="text-lg font-semibold mb-2">{title}</h2>
+      {entries.length ? (
+        <ul className="space-y-1">
+          {entries.map((e, i) => {
+            const sets = Number(e.sets);
+            const reps = Number(e.reps);
+            return (
+              <li key={i}>
+                🏋️‍♂️ {e.workout} — {isNaN(sets) ? 0 : sets} sets ×{" "}
+                {isNaN(reps) ? 0 : reps} reps
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p className="text-gray-500 text-sm">No workout logged</p>
+      )}
     </div>
   );
 }
