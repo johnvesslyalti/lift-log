@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useUserStore } from "@/store/userStore";
+import { authClient } from "@/lib/auth-client";
 import {
   LineChart,
   Line,
@@ -28,16 +29,29 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchAll = async () => {
       try {
+        // Fetch user session
+        const { data: session, error } = await authClient.getSession();
+        if (session?.user) {
+          const user = {
+            id: session.user.id,
+            name: session.user.name,
+            email: session.user.email,
+            image: session.user.image ?? undefined,
+          };
+          setUser(user);
+          setUserName(user.name ?? "User");
+          localStorage.setItem("user", JSON.stringify(user));
+        } else if (error) {
+          console.error("Error fetching session:", error);
+        }
+
+        // Fetch progress
         const res = await fetch("/api/progress");
         if (!res.ok) throw new Error("Failed to fetch progress");
         const data: ProgressEntry[] = await res.json();
         setProgress(data);
-
-        const storedUser = JSON.parse(localStorage.getItem("user") || "null");
-        setUserName(storedUser?.name ?? "User");
-        setUser(storedUser ?? {});
       } catch (err) {
         console.error(err);
       } finally {
@@ -45,7 +59,7 @@ export default function Dashboard() {
       }
     };
 
-    fetchData();
+    fetchAll();
   }, [setUser]);
 
   if (loading) return <Loading text="dashboard" />;
@@ -83,10 +97,7 @@ export default function Dashboard() {
       </div>
 
       {/* Chart */}
-      <div
-        className="relative rounded-2xl shadow-xl backdrop-blur-xl border border-neutral-800/70 p-6 overflow-hidden"
-        style={{ animation: `fadeIn 0.5s ease-out both` }}
-      >
+      <div className="relative rounded-2xl shadow-xl backdrop-blur-xl border border-neutral-800/70 p-6 overflow-hidden">
         <h2 className="text-xl font-semibold mb-4">Weekly Progress</h2>
         {chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={250}>
