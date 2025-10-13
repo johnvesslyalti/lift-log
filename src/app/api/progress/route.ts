@@ -2,57 +2,37 @@ import { PrismaClient } from "@/generated/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { subDays, startOfDay } from "date-fns";
 
 const prisma = new PrismaClient();
 
-export async function GET() {
+// Helper to get session
+async function getSession() {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session)
-    return NextResponse.json({ message: "Invalid User" }, { status: 401 });
+  if (!session) throw new Error("Invalid User");
+  return session;
+}
 
+// GET all progress for the current user
+export async function GET() {
   try {
-    const today = startOfDay(new Date());
-    const weekStart = subDays(today, 6); // last 7 days (today + past 6 days)
+    const session = await getSession();
 
     const progressData = await prisma.progress.findMany({
-      where: {
-        userId: session.user.id,
-        date: {
-          gte: weekStart,
-          lte: today,
-        },
-      },
+      where: { userId: session.user.id },
       orderBy: { date: "asc" },
+      include: { workout: true }, // optional: get workout name
     });
 
-    // Group data by day (aggregate calories and avg weight)
-    const dailySummary = Array.from({ length: 7 }).map((_, i) => {
-      const currentDate = subDays(today, 6 - i);
-      const formattedDate = currentDate.toISOString().split("T")[0];
+    // Return only the fields we care about
+    const result = progressData.map((p) => ({
+      id: p.id,
+      date: p.date.toISOString(),
+      workout: p.workout?.name ?? "Unknown Workout",
+      weight: p.weight ?? null,
+      caloriesBurned: p.caloriesBurned ?? null,
+    }));
 
-      const dayEntries = progressData.filter(
-        (p) => p.date.toISOString().split("T")[0] === formattedDate
-      );
-
-      const totalCalories = dayEntries.reduce(
-        (sum, d) => sum + (d.caloriesBurned || 0),
-        0
-      );
-      const avgWeight =
-        dayEntries.length > 0
-          ? dayEntries.reduce((sum, d) => sum + (d.weight || 0), 0) /
-            dayEntries.length
-          : null;
-
-      return {
-        date: formattedDate,
-        calories: totalCalories,
-        weight: avgWeight,
-      };
-    });
-
-    return NextResponse.json(dailySummary);
+    return NextResponse.json(result);
   } catch (error: unknown) {
     console.error(error);
     return NextResponse.json(
@@ -62,20 +42,14 @@ export async function GET() {
   }
 }
 
-
+// POST new progress entry
 export async function POST(req: Request) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) return NextResponse.json({ message: "Invalid User" }, { status: 401 });
-
   try {
-    const body = await req.json();
-    const { workoutId, weight, caloriesBurned } = body;
+    const session = await getSession();
+    const { workoutId, weight, caloriesBurned } = await req.json();
 
     if (!workoutId) {
-      return NextResponse.json(
-        { message: "Workout ID is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "Workout ID is required" }, { status: 400 });
     }
 
     const progress = await prisma.progress.create({
@@ -85,31 +59,16 @@ export async function POST(req: Request) {
         weight: weight ?? null,
         caloriesBurned: caloriesBurned ?? null,
       },
-      include: {
-        workout: {
-          include: {
-            workoutExercises: {
-              include: { Exercise: true },
-            },
-          },
-        },
-      },
+      include: { workout: true },
     });
 
-    // derive stats same as GET
-    const exercises = progress.workout?.workoutExercises ?? [];
-    const totalSets = exercises.reduce((acc, e) => acc + (e.Exercise.sets ?? 0), 0);
-    const totalReps = exercises.reduce((acc, e) => acc + (e.Exercise.reps ?? 0), 0);
-
-    const formatted = {
-      id: String(progress.id),
+    return NextResponse.json({
+      id: progress.id,
       workout: progress.workout?.name ?? "Unknown Workout",
-      sets: totalSets,
-      reps: totalReps,
+      weight: progress.weight ?? null,
+      caloriesBurned: progress.caloriesBurned ?? null,
       createdAt: progress.createdAt.toISOString(),
-    };
-
-    return NextResponse.json(formatted);
+    });
   } catch (error: unknown) {
     console.error(error);
     return NextResponse.json(
