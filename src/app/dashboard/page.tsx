@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { authClient } from "@/lib/auth-client";
 import { useUserStore } from "@/store/userStore";
 import {
   LineChart,
@@ -15,210 +14,157 @@ import {
 import Loading from "@/components/loading";
 
 interface ProgressEntry {
+  id: number;
   date: string; // ISO date string
-  calories: number | null;
+  caloriesBurned: number | null;
   weight: number | null;
-}
-
-interface ProgressStats {
-  entries: ProgressEntry[];
-  totalCalories: number;
-  averageWeight: number;
+  workout: string;
 }
 
 export default function Dashboard() {
   const setUser = useUserStore((state) => state.setUser);
   const [userName, setUserName] = useState<string | null>(null);
-  const [stats, setStats] = useState<ProgressStats | null>(null);
+  const [progress, setProgress] = useState<ProgressEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchStats = async () => {
-    try {
-      const res = await fetch("/api/progress");
-      if (!res.ok) throw new Error("Failed to fetch progress");
-      const data: ProgressEntry[] = await res.json();
-
-      if (!Array.isArray(data) || data.length === 0) {
-        setStats({
-          entries: [],
-          totalCalories: 0,
-          averageWeight: 0,
-        });
-        return;
-      }
-
-      const totalCalories = data.reduce(
-        (sum, e) => sum + (e.calories ?? 0),
-        0
-      );
-      const averageWeight =
-        data.reduce((sum, e) => sum + (e.weight ?? 0), 0) / data.length;
-
-      setStats({
-        entries: data,
-        totalCalories,
-        averageWeight,
-      });
-    } catch (err) {
-      console.error(err);
-      setStats({
-        entries: [],
-        totalCalories: 0,
-        averageWeight: 0,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    const getUser = async () => {
+    const fetchData = async () => {
       try {
-        const { data: session, error } = await authClient.getSession();
-        if (error) return;
-        if (session?.user) {
-          setUser({
-            id: session.user.id,
-            name: session.user.name,
-            email: session.user.email,
-            image: session.user.image ?? undefined,
-          });
-          setUserName(
-            typeof session.user.name === "string" ? session.user.name : null
-          );
-        }
-      } catch (err) {}
+        const res = await fetch("/api/progress");
+        if (!res.ok) throw new Error("Failed to fetch progress");
+        const data: ProgressEntry[] = await res.json();
+        setProgress(data);
+
+        const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+        setUserName(storedUser?.name ?? "User");
+        setUser(storedUser ?? {});
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    getUser();
-    fetchStats();
+    fetchData();
   }, [setUser]);
 
   if (loading) return <Loading text="dashboard" />;
 
-  const entries = stats?.entries ?? [];
+  // Stats
+  const totalCalories = progress.reduce((sum, p) => sum + (p.caloriesBurned ?? 0), 0);
+  const averageWeight =
+    progress.length > 0
+      ? progress.reduce((sum, p) => sum + (p.weight ?? 0), 0) / progress.length
+      : 0;
+  const activeDays = progress.filter((p) => p.caloriesBurned && p.caloriesBurned > 0).length;
 
-  // Rechart-friendly data
-  const chartData = entries.map((p) => ({
-    day: new Date(p.date).toLocaleDateString("en-US", {
-      weekday: "short",
-    }),
-    calories: p.calories ?? 0,
+  // Chart
+  const chartData = progress.slice(-7).map((p) => ({
+    day: new Date(p.date).toLocaleDateString("en-US", { weekday: "short" }),
+    calories: p.caloriesBurned ?? 0,
     weight: p.weight ?? 0,
   }));
 
-  // Calculate today/yesterday progress for summary
-  const today = new Date().toDateString();
-  const yesterday = new Date(Date.now() - 86400000).toDateString();
-
-  const todayEntry = entries.find(
-    (e) => new Date(e.date).toDateString() === today
-  );
-  const yesterdayEntry = entries.find(
-    (e) => new Date(e.date).toDateString() === yesterday
-  );
+  // Recent
+  const recentEntries = [...progress].reverse().slice(0, 3);
 
   return (
-    <div className="min-h-screen p-6">
-      <h1 className="text-3xl font-bold mb-6">
-        {userName ? `Welcome, ${userName}` : "Dashboard"}
-      </h1>
+    <div className="min-h-screen p-6 md:p-8">
+      {/* Header */}
+      <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-3xl font-bold">{userName ? `Welcome, ${userName}` : "Dashboard"}</h1>
+      </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard
-          title="Total Calories Burned"
-          value={`${stats?.totalCalories ?? 0}`}
-          subtitle="🔥 Keep pushing!"
-        />
-        <StatCard
-          title="Average Weight (kg)"
-          value={
-            stats?.averageWeight
-              ? stats.averageWeight.toFixed(1)
-              : "0"
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+        <DashboardCard title="Total Calories Burned" value={totalCalories} color="red" />
+        <DashboardCard title="Average Weight (kg)" value={averageWeight.toFixed(1)} color="blue" />
+        <DashboardCard title="Active Days" value={activeDays} color="green" />
+      </div>
+
+      {/* Chart */}
+      <div
+        className="relative rounded-2xl shadow-xl backdrop-blur-xl border border-neutral-800/70 p-6 overflow-hidden"
+        style={{ animation: `fadeIn 0.5s ease-out both` }}
+      >
+        <h2 className="text-xl font-semibold mb-4">Weekly Progress</h2>
+        {chartData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+              <XAxis dataKey="day" stroke="#aaa" />
+              <YAxis stroke="#aaa" />
+              <Tooltip />
+              <Line type="monotone" dataKey="calories" stroke="#f87171" strokeWidth={2} />
+              <Line type="monotone" dataKey="weight" stroke="#60a5fa" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <p className="text-gray-400 text-center">No progress data yet</p>
+        )}
+      </div>
+
+      {/* Recent Workouts */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6">
+        {recentEntries.length > 0 ? (
+          recentEntries.map((entry, index) => (
+            <div
+              key={entry.id}
+              className="relative group rounded-2xl backdrop-blur-xl border border-neutral-800/70 shadow-lg p-6 overflow-hidden"
+              style={{ animation: `fadeIn 0.5s ease-out ${index * 0.1}s both` }}
+            >
+              <h3 className="text-lg font-bold mb-2">{entry.workout}</h3>
+              <p className="text-sm text-neutral-400 mb-2">{new Date(entry.date).toLocaleDateString()}</p>
+              <div className="flex gap-4 text-sm text-neutral-400">
+                <span>🔥 Calories: {entry.caloriesBurned ?? 0}</span>
+                <span>⚖️ Weight: {entry.weight ?? "N/A"} kg</span>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="col-span-full rounded-2xl shadow-xl p-12 text-center border border-neutral-800/70">
+            <p className="text-neutral-400">No workouts logged yet</p>
+          </div>
+        )}
+      </div>
+
+      {/* Animation Keyframes */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
           }
-          subtitle="⚖️ Staying consistent!"
-        />
-        <StatCard
-          title="Active Days This Week"
-          value={entries.filter((e) => e.calories && e.calories > 0).length}
-          subtitle="💪 Great streak!"
-        />
-      </div>
-
-      {/* Weekly Graph */}
-      <div className="rounded-xl shadow p-4 mt-6 h-64 bg-card">
-        <h2 className="text-lg font-semibold mb-2">Weekly Progress</h2>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-            <XAxis dataKey="day" stroke="#aaa" />
-            <YAxis stroke="#aaa" />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="calories"
-              stroke="#f87171"
-              strokeWidth={2}
-              name="Calories Burned"
-            />
-            <Line
-              type="monotone"
-              dataKey="weight"
-              stroke="#60a5fa"
-              strokeWidth={2}
-              name="Weight (kg)"
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Daily Highlights */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-        <DaySummary title="Yesterday" entry={yesterdayEntry} />
-        <DaySummary title="Today" entry={todayEntry} />
-      </div>
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 }
 
-function StatCard({
+// --- Dashboard Card Component ---
+function DashboardCard({
   title,
   value,
-  subtitle,
+  color,
 }: {
   title: string;
-  value: string | number;
-  subtitle: string;
+  value: number | string;
+  color?: "red" | "blue" | "green";
 }) {
-  return (
-    <div className="rounded-xl shadow p-4 bg-card">
-      <h2 className="text-lg font-semibold mb-2">{title}</h2>
-      <p className="text-3xl font-bold">{value}</p>
-      <p className="text-gray-500 text-sm">{subtitle}</p>
-    </div>
-  );
-}
+  const colorClasses: Record<"red" | "blue" | "green", string> = {
+    red: "text-red-500",
+    blue: "text-blue-500",
+    green: "text-green-500",
+  };
 
-function DaySummary({
-  title,
-  entry,
-}: {
-  title: string;
-  entry?: ProgressEntry;
-}) {
   return (
-    <div className="rounded-xl shadow p-4 bg-card">
-      <h2 className="text-lg font-semibold mb-2">{title}</h2>
-      {entry ? (
-        <ul className="space-y-1 text-sm">
-          <li>🔥 Calories: {entry.calories ?? 0}</li>
-          <li>⚖️ Weight: {entry.weight ?? "N/A"} kg</li>
-        </ul>
-      ) : (
-        <p className="text-gray-500 text-sm">No data logged</p>
-      )}
+    <div className="relative group rounded-2xl backdrop-blur-xl border border-neutral-800/70 shadow-lg p-6 overflow-hidden">
+      <h3 className="text-sm font-medium mb-2">{title}</h3>
+      <p className={`text-2xl font-bold ${color ? colorClasses[color] : ""}`}>{value}</p>
     </div>
   );
 }
