@@ -1,15 +1,20 @@
-import { redirect } from "next/navigation";
+'use client';
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Footer from "@/components/footer";
 import HandleLogin from "@/components/handle-login";
 import { authClient } from "@/lib/auth-client";
 
-export default async function Page() {
-  const { data: session } = await authClient.getSession();
+export default function Page() {
+  const { data: session } = authClient.useSession();
+  const router = useRouter();
 
-  // ✅ If user is logged in, redirect to dashboard
-  if (session?.user) {
-    redirect("/dashboard");
-  }
+  useEffect(() => {
+    if (session?.user) {
+      router.push("/dashboard"); // Client-side redirect
+    }
+  }, [session, router]);
 
   return (
     <div className="flex flex-col justify-center">
