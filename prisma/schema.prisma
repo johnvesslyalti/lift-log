@@ -23,6 +23,7 @@ model User {
     accounts      Account[]
     sessions      Session[]
     progress      Progress[]
+    streak        Streak?
 
     @@map("user")
 }
@@ -118,4 +119,12 @@ model Progress {
     workout Workout? @relation(fields: [workoutId], references: [id])
 
     @@map("workout_progress")
+}
+
+model Streak {
+    id       Int       @id @default(autoincrement())
+    userId   String    @unique
+    count    Int       @default(0)
+    lastDate DateTime?
+    user     User      @relation(fields: [userId], references: [id])
 }
