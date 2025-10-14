@@ -7,6 +7,30 @@ import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
+export async function GET() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session)
+    return NextResponse.json({ message: "Invalid User" }, { status: 401 });
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        height: true,
+        weight: true,
+      }
+    });
+
+    if (!user)
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+
+    return NextResponse.json(user);
+  } catch (error: unknown) {
+    const err = handleError(error);
+    return NextResponse.json(err, { status: 400 });
+  }
+}
+
 export async function PUT(req: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session)

@@ -10,46 +10,34 @@ export default function LandingPage() {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
 
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (isPending) return; // Wait for session to load
+
     const redirectUser = async () => {
-      if (!session?.user) {
-        // No user logged in
-        setLoading(false);
-        return;
-      }
+      if (!session?.user) return; // No user logged in, show landing page
 
       try {
-        // Fetch user profile
-        const res = await fetch("/api/profile", {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
-
+        const res = await fetch("/api/profile");
         if (!res.ok) throw new Error("Failed to fetch user data");
 
         const user = await res.json();
 
         // Redirect based on profile completeness
-        if (!user.height || !user.weight) {
-          router.replace("/details");
-        } else {
-          router.replace("/dashboard");
-        }
-      } catch (err: unknown) {
+        router.replace(
+          !user.height || !user.weight ? "/details" : "/dashboard"
+        );
+      } catch (err) {
         console.error(err);
         setError("Something went wrong. Please try again.");
-      } finally {
-        setLoading(false);
       }
     };
 
-    if (!isPending) redirectUser();
+    redirectUser();
   }, [session, isPending, router]);
 
-  if (loading || isPending) {
+  if (isPending) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         Loading...
@@ -66,7 +54,7 @@ export default function LandingPage() {
     );
   }
 
-  // If no session, show landing page
+  // Show landing page if no session
   return (
     <div className="flex flex-col justify-center min-h-screen">
       <main className="flex flex-col items-center justify-center flex-1">

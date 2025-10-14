@@ -11,16 +11,13 @@ interface StreakData {
 }
 
 export default function Profile() {
-  const userFromStore = useUserStore((state) => state.user);
-  const [user, setUser] = useState(userFromStore);
+  const { user, setUser } = useUserStore();
   const [streak, setStreak] = useState<number>(0);
 
   useEffect(() => {
-    if (userFromStore) setUser(userFromStore);
-
     const fetchStreak = async () => {
       try {
-        const res = await fetch("/api/streak");
+        const res = await fetch("/api/streak", { credentials: "include" });
         if (!res.ok) throw new Error("Failed to fetch streak");
         const data: StreakData = await res.json();
         setStreak(data.streak ?? 0);
@@ -30,7 +27,25 @@ export default function Profile() {
     };
 
     fetchStreak();
-  }, [userFromStore]);
+  }, []);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("/api/profile", { credentials: "include" });
+        if (!res.ok) throw new Error("Failed to fetch profile data");
+        const data = await res.json();
+        if (user) setUser({ ...user, ...data });
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    // Fetch height/weight if missing
+    if (user && (user.height == null || user.weight == null)) {
+      fetchProfile();
+    }
+  }, [user, setUser]);
 
   if (!user) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
