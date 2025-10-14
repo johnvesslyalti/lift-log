@@ -1,14 +1,12 @@
 'use client';
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useUserStore } from "@/store/userStore";
 import HandleDeleteAccount from "@/components/handle-delete-account";
+import Alert from "@/components/Alert";
 
 export default function SettingsPage() {
-  const router = useRouter();
-
   // Settings Store
   const {
     darkMode,
@@ -39,10 +37,12 @@ export default function SettingsPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [alert, setAlert] = useState<{ text: string; type?: "success" | "error" | "info" } | null>(null);
 
   // Save Profile
   const handleSaveProfile = async () => {
     setError("");
+    setAlert(null); // clear previous alert
 
     if (!height || height <= 0 || !weight || weight <= 0) {
       setError("Please enter valid height and weight.");
@@ -72,7 +72,8 @@ export default function SettingsPage() {
       setName(tempName);
       setEmail(tempEmail);
 
-      alert("Profile saved!");
+      // Show success alert
+      setAlert({ text: "Profile updated successfully!", type: "success" });
     } catch (err) {
       setError((err as Error).message || "An unexpected error occurred.");
     } finally {
@@ -83,6 +84,9 @@ export default function SettingsPage() {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
       <h1 className="text-3xl font-bold text-center">Settings</h1>
+
+      {/* Alert */}
+      {alert && <Alert text={alert.text} type={alert.type} />}
 
       {/* Account / Profile */}
       <section className="shadow rounded p-6 space-y-4">
