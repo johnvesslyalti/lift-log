@@ -43,10 +43,10 @@ export default function Progress() {
 
     try {
       setDeleteDate(date);
-      const res = await fetch(`/api/progress?date=${date}`, { method: "DELETE" });
+      const res = await fetch(`/api/progress`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete entry");
 
-      setProgress(progress.filter((p) => p.date !== date));
+      fetchProgress();
     } catch (err) {
       const errMsg = handleError(err);
       setError(typeof errMsg === "string" ? errMsg : "An error occurred.");

@@ -1,3 +1,4 @@
+import { handleError } from "@/components/error-handle";
 import { PrismaClient } from "@/generated/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -76,4 +77,23 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+}
+
+export async function DELETE(req: Request) {
+    const session = await getSession();
+
+    try {
+        const { id } = await req.json();
+        
+        if (!id) {
+            return NextResponse.json({ message: "Progress ID is required" }, { status: 400 });
+        }
+        await prisma.progress.deleteMany({
+            where: { id, userId: session.user.id },
+        });
+        return NextResponse.json({ message: "Progress entry deleted" });
+        
+    } catch (error: unknown) {
+        handleError(error);
+    }
 }
