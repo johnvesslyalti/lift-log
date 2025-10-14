@@ -52,7 +52,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen p-6 flex flex-col items-center bg-neutral-900 text-white">
+    <div className="min-h-screen p-6 flex flex-col items-center">
       {/* Profile Image */}
       <div className="relative w-40 h-40 mb-4">
         {user.image ? (
@@ -60,10 +60,10 @@ export default function Profile() {
             src={user.image}
             fill
             alt="User Image"
-            className="rounded-full object-cover border-4 border-yellow-400 shadow-lg"
+            className="rounded-full object-cover border-4 shadow-lg"
           />
         ) : (
-          <div className="w-40 h-40 flex items-center justify-center bg-gray-600 rounded-full text-5xl font-bold text-white shadow-lg border-4 border-yellow-400">
+          <div className="w-40 h-40 flex items-center justify-center bg-gray-600 rounded-full text-5xl font-bold shadow-lg border-4">
             {user.name?.[0] ?? "U"}
           </div>
         )}
@@ -77,15 +77,15 @@ export default function Profile() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6 w-full max-w-3xl">
-        <Card className="bg-neutral-800 hover:bg-neutral-700 transition p-4 rounded-2xl shadow-lg">
+        <Card className="transition p-4 rounded-2xl shadow-lg">
           <CardHeader>📏 Height</CardHeader>
           <CardContent>{user.height ?? "N/A"} cm</CardContent>
         </Card>
-        <Card className="bg-neutral-800 hover:bg-neutral-700 transition p-4 rounded-2xl shadow-lg">
+        <Card className="transition p-4 rounded-2xl shadow-lg">
           <CardHeader>⚖️ Weight</CardHeader>
           <CardContent>{user.weight ?? "N/A"} kg</CardContent>
         </Card>
-        <Card className="bg-neutral-800 hover:bg-neutral-700 transition p-4 rounded-2xl shadow-lg">
+        <Card className="transition p-4 rounded-2xl shadow-lg">
           <CardHeader>🔥 Current Streak</CardHeader>
           <CardContent>{streak}</CardContent>
         </Card>
