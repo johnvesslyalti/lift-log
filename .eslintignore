@@ -1,4 +1,4 @@
 # Ignore Prisma generated files
 prisma/generated/
 src/generated/
-src/generated/**
+node_modules/
