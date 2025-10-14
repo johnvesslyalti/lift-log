@@ -26,6 +26,7 @@ export default function Dashboard() {
   const setUser = useUserStore((state) => state.setUser);
   const [userName, setUserName] = useState<string | null>(null);
   const [progress, setProgress] = useState<ProgressEntry[]>([]);
+  const [streak, setStreak] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,10 +49,16 @@ export default function Dashboard() {
         }
 
         // Fetch progress
-        const res = await fetch("/api/progress");
-        if (!res.ok) throw new Error("Failed to fetch progress");
-        const data: ProgressEntry[] = await res.json();
-        setProgress(data);
+        const progressRes = await fetch("/api/progress");
+        if (!progressRes.ok) throw new Error("Failed to fetch progress");
+        const progressData: ProgressEntry[] = await progressRes.json();
+        setProgress(progressData);
+
+        // Fetch streak
+        const streakRes = await fetch("/api/streak");
+        if (!streakRes.ok) throw new Error("Failed to fetch streak");
+        const streakData: { streak: number } = await streakRes.json();
+        setStreak(streakData.streak ?? 0);
       } catch (err) {
         console.error(err);
       } finally {
@@ -90,14 +97,15 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-6">
         <DashboardCard title="Total Calories Burned" value={totalCalories} color="red" />
         <DashboardCard title="Average Weight (kg)" value={averageWeight.toFixed(1)} color="blue" />
         <DashboardCard title="Active Days" value={activeDays} color="green" />
+        <DashboardCard title="🔥 Current Streak" value={streak} color="yellow" />
       </div>
 
       {/* Chart */}
-      <div className="relative rounded-2xl shadow-xl backdrop-blur-xl border border-neutral-800/70 p-6 overflow-hidden">
+      <div className="relative rounded-2xl shadow-xl backdrop-blur-xl border border-neutral-800/70 p-6 overflow-hidden mb-6">
         <h2 className="text-xl font-semibold mb-4">Weekly Progress</h2>
         {chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={250}>
@@ -164,12 +172,13 @@ function DashboardCard({
 }: {
   title: string;
   value: number | string;
-  color?: "red" | "blue" | "green";
+  color?: "red" | "blue" | "green" | "yellow";
 }) {
-  const colorClasses: Record<"red" | "blue" | "green", string> = {
+  const colorClasses: Record<"red" | "blue" | "green" | "yellow", string> = {
     red: "text-red-500",
     blue: "text-blue-500",
     green: "text-green-500",
+    yellow: "text-yellow-400",
   };
 
   return (
