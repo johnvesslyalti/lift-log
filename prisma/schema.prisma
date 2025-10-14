@@ -117,8 +117,6 @@ model Progress {
     // Relations
     user    User     @relation(fields: [userId], references: [id])
     workout Workout? @relation(fields: [workoutId], references: [id])
-
-    @@map("workout_progress")
 }
 
 model Streak {
