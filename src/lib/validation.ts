@@ -6,9 +6,8 @@ export const workoutSchema = z.object({
 });
 
 export const profileSchema = z.object({
-    userId: z.string().uuid({ message: "Invalid user", version: "v4"}),
-    height: z.float32(),
-    weight: z.float32()
+    height: z.float32().optional(),
+    weight: z.float32().optional()
 });
 
 export const exerciseSchema = z.object({

@@ -6,39 +6,50 @@ import Footer from "@/components/footer";
 import HandleLogin from "@/components/handle-login";
 import { authClient } from "@/lib/auth-client";
 
-export default function Page() {
+export default function LandingPage() {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
-  const [checking, setChecking] = useState(true);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const redirectUser = async () => {
-      if (session?.user) {
-        // Fetch full user data from your backend to check height/weight
-        try {
-          const res = await fetch("/api/user/me"); // create this route to get user info
-          if (!res.ok) throw new Error("Failed to fetch user data");
-          const user = await res.json();
+      if (!session?.user) {
+        // No user logged in
+        setLoading(false);
+        return;
+      }
 
-          if (!user.height || !user.weight) {
-            router.push("/details"); // Redirect to details page
-          } else {
-            router.push("/dashboard"); // Redirect to dashboard
-          }
-        } catch (error) {
-          console.error(error);
-        } finally {
-          setChecking(false);
+      try {
+        // Fetch user profile
+        const res = await fetch("/api/profile", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch user data");
+
+        const user = await res.json();
+
+        // Redirect based on profile completeness
+        if (!user.height || !user.weight) {
+          router.replace("/details");
+        } else {
+          router.replace("/dashboard");
         }
-      } else {
-        setChecking(false);
+      } catch (err: unknown) {
+        console.error(err);
+        setError("Something went wrong. Please try again.");
+      } finally {
+        setLoading(false);
       }
     };
 
-    redirectUser();
-  }, [session, router]);
+    if (!isPending) redirectUser();
+  }, [session, isPending, router]);
 
-  if (isPending || checking) {
+  if (loading || isPending) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         Loading...
@@ -46,6 +57,16 @@ export default function Page() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <p className="text-red-500 mb-4">{error}</p>
+        <HandleLogin />
+      </div>
+    );
+  }
+
+  // If no session, show landing page
   return (
     <div className="flex flex-col justify-center min-h-screen">
       <main className="flex flex-col items-center justify-center flex-1">

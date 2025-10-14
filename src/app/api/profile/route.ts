@@ -7,22 +7,21 @@ import { NextRequest, NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-export async function POST(res: NextResponse, req: NextRequest) {
+export async function PUT(req: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session)
     return NextResponse.json({ message: "Invalid User" }, { status: 401 });
 
   try {
     const body = await req.json();
-
     const validateData = profileSchema.parse(body);
 
     await prisma.user.update({
       where: { id: session.user.id },
-      data: {
-        ...validateData,
-      },
+      data: { ...validateData },
     });
+
+    return NextResponse.json({ message: "Profile updated successfully" });
   } catch (error: unknown) {
     const err = handleError(error);
     return NextResponse.json(err, { status: 400 });
@@ -34,23 +33,29 @@ export async function DELETE() {
   if (!session)
     return NextResponse.json({ message: "Invalid User" }, { status: 401 });
 
-  try {
-    const userId = session.user.id;
+  const userId = session.user.id;
 
-    // 1. Delete all WorkoutExercise records of this user's exercises or workouts
+  try {
+    // Get all exercises and workouts IDs
+    const exercises = await prisma.exercise.findMany({ where: { userId }, select: { id: true } });
+    const workouts = await prisma.workout.findMany({ where: { userId }, select: { id: true } });
+
+    const exerciseIds = exercises.map(e => e.id);
+    const workoutIds = workouts.map(w => w.id);
+
+    // Delete all workoutExercises related to these
     await prisma.workoutExercise.deleteMany({
       where: {
-        OR: [{ Exercise: { userId } }, { Workout: { userId } }],
+        OR: [
+          { exerciseId: { in: exerciseIds } },
+          { workoutId: { in: workoutIds } },
+        ],
       },
     });
 
-    // 2. Delete all Exercises of this user
+    await prisma.streak.deleteMany({ where: { userId } });
     await prisma.exercise.deleteMany({ where: { userId } });
-
-    // 3. Delete all Workouts of this user
     await prisma.workout.deleteMany({ where: { userId } });
-
-    // 4. Finally, delete the User
     await prisma.user.delete({ where: { id: userId } });
 
     return NextResponse.json({ message: "Account deleted successfully" });

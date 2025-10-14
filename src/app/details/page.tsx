@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -9,10 +9,11 @@ import { FiActivity } from "react-icons/fi";
 
 export default function CompleteProfileForm() {
   const user = useUserStore((state) => state.user);
+  const setUser = useUserStore((state) => state.setUser);
   const router = useRouter();
 
-  const [height, setHeight] = useState<number | "">(user?.height ?? "");
-  const [weight, setWeight] = useState<number | "">(user?.weight ?? "");
+  const [height, setHeight] = useState<number | null>(user?.height ?? null);
+  const [weight, setWeight] = useState<number | null>(user?.weight ?? null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
 
@@ -20,22 +21,37 @@ export default function CompleteProfileForm() {
     e.preventDefault();
     setError("");
 
-    if (!height || !weight) {
-      setError("Please fill in both height and weight.");
+    // Validate input
+    if (!height || height <= 0 || !weight || weight <= 0) {
+      setError("Please enter valid height and weight.");
+      return;
+    }
+
+    if (!user) {
+      setError("User not found. Please log in again.");
       return;
     }
 
     try {
       setLoading(true);
+
+      // Call backend API
       const res = await fetch("/api/profile", {
-        method: "POST",
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ height, weight }),
       });
 
-      if (!res.ok) throw new Error("Failed to update profile");
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Failed to update profile");
+      }
 
-      router.push("/dashboard"); // redirect to dashboard after completion
+      // Update Zustand store safely
+      setUser({ ...user, height, weight });
+
+      // Redirect to dashboard
+      router.push("/dashboard");
     } catch (err) {
       setError((err as Error).message || "An unexpected error occurred.");
     } finally {
@@ -64,8 +80,10 @@ export default function CompleteProfileForm() {
               type="number"
               className="w-full rounded-xl p-2 mt-2 text-black"
               placeholder="Enter your height in cm"
-              value={height}
-              onChange={(e) => setHeight(Number(e.target.value))}
+              value={height ?? ""}
+              onChange={(e) =>
+                setHeight(e.target.value ? Number(e.target.value) : null)
+              }
             />
           </CardContent>
         </Card>
@@ -80,8 +98,10 @@ export default function CompleteProfileForm() {
               type="number"
               className="w-full rounded-xl p-2 mt-2 text-black"
               placeholder="Enter your weight in kg"
-              value={weight}
-              onChange={(e) => setWeight(Number(e.target.value))}
+              value={weight ?? ""}
+              onChange={(e) =>
+                setWeight(e.target.value ? Number(e.target.value) : null)
+              }
             />
           </CardContent>
         </Card>
