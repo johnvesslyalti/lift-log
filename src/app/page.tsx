@@ -9,28 +9,30 @@ import { authClient } from "@/lib/auth-client";
 export default function LandingPage() {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
-
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isPending) return; // Wait for session to load
+    // 🟡 Don't do anything while the session is loading
+    if (isPending) return;
+
+    // 🟢 If there's no session or no user, just show landing page
+    if (!session?.user) return;
 
     const redirectUser = async () => {
-      if (!session?.user) return; // No user logged in, show landing page
-
       try {
-        const res = await fetch("/api/profile");
-        if (!res.ok) throw new Error("Failed to fetch user data");
+        const res = await fetch("/api/profile", { credentials: "include" });
 
+        if (!res.ok) throw new Error("Failed to fetch user data");
         const user = await res.json();
 
-        // Redirect based on profile completeness
-        router.replace(
-          !user.height || !user.weight ? "/details" : "/dashboard"
-        );
+        router.replace(!user.height || !user.weight ? "/details" : "/dashboard");
       } catch (err) {
-        console.error(err);
-        setError("Something went wrong. Please try again.");
+        console.error("Error fetching user profile:", err);
+
+        // If the session vanished mid-fetch, just stop — not an actual error
+        if (session?.user) {
+          setError("Something went wrong. Please try again.");
+        }
       }
     };
 
@@ -54,7 +56,6 @@ export default function LandingPage() {
     );
   }
 
-  // Show landing page if no session
   return (
     <div className="flex flex-col justify-center min-h-screen">
       <main className="flex flex-col items-center justify-center flex-1">
