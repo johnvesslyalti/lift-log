@@ -256,7 +256,7 @@ export default function LandingPage() {
             aria-labelledby="cta-heading"
           >
             <div
-              className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-500"
+              className="absolute"
               aria-hidden
             />
             <div className="relative">
