@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   motion,
@@ -28,8 +28,7 @@ export default function LandingPage() {
       try {
         const res = await fetch("/api/profile", { credentials: "include" });
         if (!res.ok) throw new Error("Failed to fetch user data");
-        const user = await res.json();
-        router.replace(!user.height || !user.weight ? "/details" : "/dashboard");
+        router.replace("/dashboard");
       } catch (err) {
         console.error("Error fetching user profile:", err);
         if (session?.user) setError("Something went wrong. Please try again.");
@@ -92,26 +91,22 @@ export default function LandingPage() {
   const features = [
     {
       title: "Dashboard Overview",
-      desc:
-        "Visualize your entire fitness journey — streaks, time spent, and calories burned, all in one place.",
+      desc: "Visualize your entire fitness journey — streaks, time spent, and calories burned, all in one place.",
       image: "/dashboard.png",
     },
     {
       title: "Workout Tracking",
-      desc:
-        "Log workouts easily and stay consistent with detailed exercise breakdowns and time tracking.",
+      desc: "Log workouts easily and stay consistent with detailed exercise breakdowns and time tracking.",
       image: "/workout.png",
     },
     {
       title: "Exercise Management",
-      desc:
-        "Create, edit, and customize exercises tailored to your goals — track sets, reps, and progress.",
+      desc: "Create, edit, and customize exercises tailored to your goals — track sets, reps, and progress.",
       image: "/exercise.png",
     },
     {
       title: "Progress Insights",
-      desc:
-        "Track your weight, muscle growth, and progress with beautiful charts and analytics.",
+      desc: "Track your weight, muscle growth, and progress with beautiful charts and analytics.",
       image: "/progress.png",
     },
   ];
@@ -167,7 +162,8 @@ export default function LandingPage() {
               animate="show"
               className="text-lg md:text-xl text-gray-300 max-w-2xl mb-8"
             >
-              LiftLog helps you stay consistent, visualize progress, and achieve your dream physique.
+              LiftLog helps you stay consistent, visualize progress, and achieve
+              your dream physique.
             </motion.p>
 
             <motion.div variants={heroVariants} initial="hidden" animate="show">
@@ -255,12 +251,12 @@ export default function LandingPage() {
             className="text-center py-20 px-6 relative overflow-hidden"
             aria-labelledby="cta-heading"
           >
-            <div
-              className="absolute"
-              aria-hidden
-            />
+            <div className="absolute" aria-hidden />
             <div className="relative">
-              <h3 id="cta-heading" className="text-3xl md:text-4xl font-bold mb-4">
+              <h3
+                id="cta-heading"
+                className="text-3xl md:text-4xl font-bold mb-4"
+              >
                 Ready to log your next lift?
               </h3>
               <p className="text-lg text-white/90 mb-6">
@@ -277,7 +273,9 @@ export default function LandingPage() {
             <div className="container mx-auto flex flex-col md:flex-row items-center justify-between py-6 px-4 gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-lg font-bold">🏋️ Lift Log</span>
-                <span className="text-sm text-gray-400">Track • Train • Transform</span>
+                <span className="text-sm text-gray-400">
+                  Track • Train • Transform
+                </span>
               </div>
 
               <div className="text-sm text-gray-400">
