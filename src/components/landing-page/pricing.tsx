@@ -33,7 +33,7 @@ const PLANS = [
 
 export default function Pricing() {
   return (
-    <section className="relative min-h-screen py-24">
+    <section className="relative min-h-screen py-24" id="pricing">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(55%_40%_at_50%_5%,rgba(94,234,212,0.18),transparent_70%)]" />
 
       <div className="max-w-6xl mx-auto px-6 text-center mb-16">

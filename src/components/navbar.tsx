@@ -2,7 +2,12 @@
 
 import { motion } from "motion/react";
 
-const navbar_content = ["Overview", "Features", "Pricing", "CTA"];
+const navbar_content = [
+    {name: "Overview", refr: "#overview"},
+    {name: "Features", refr: "#features"},
+    {name: "Pricing", refr: "#pricing"},
+    {name: "CTA", refr: "cta"},
+];
 
 export default function Navbar() {
   return (
@@ -46,7 +51,7 @@ export default function Navbar() {
           {navbar_content.map((navbar_con, index) => (
             <motion.a
               key={index}
-              href="https://johnvesslyalti.xyz"
+              href={navbar_con.refr}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               whileHover={{ scale: 1.1, color: "#fff" }}
@@ -57,7 +62,7 @@ export default function Navbar() {
               }}
               className="hover:text-white transition-colors"
             >
-              {navbar_con}
+              {navbar_con.name}
             </motion.a>
           ))}
         </div>

@@ -9,6 +9,7 @@ export default function Hero() {
     <div
       className="relative min-h-screen flex flex-col items-center justify-center text-center py-24 px-6 md:py-28"
       aria-labelledby="hero-heading"
+      id="overview"
     >
       <motion.h1
         id="hero-heading"

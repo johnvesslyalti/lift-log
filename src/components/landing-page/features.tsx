@@ -57,7 +57,7 @@ const FEATURES = [
 
 export default function Features() {
   return (
-    <section className="relative py-24">
+    <section className="relative py-24" id="features">
       {/* subtle gradient glow */}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_40%_at_50%_0%,rgba(94,234,212,0.15),transparent_60%)]" />
 
