@@ -13,6 +13,7 @@ import HandleLogin from "@/components/handle-login";
 import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
 import Hero from "@/components/landing-page/hero";
+import LogoLoading from "./logo-loading/page";
 
 export default function LandingPage() {
   // Hooks must be unconditional and at the top
@@ -101,9 +102,7 @@ export default function LandingPage() {
     <div className="flex flex-col min-h-screen bg-[radial-gradient(1200px_800px_at_50%_-10%,#0f172a,transparent),linear-gradient(to_b,#0b1220,#030712_70%)] text-white">
       {/* Loading */}
       {showLoading && (
-        <section className="min-h-screen flex items-center justify-center">
-          Loading...
-        </section>
+        <LogoLoading />
       )}
 
       {/* Error */}

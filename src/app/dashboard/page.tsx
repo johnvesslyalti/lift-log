@@ -12,7 +12,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
-import Loading from "@/components/loading";
+import LogoLoading from "../logo-loading/page";
 
 interface ProgressEntry {
   id: number;
@@ -69,7 +69,7 @@ export default function Dashboard() {
     fetchAll();
   }, [setUser]);
 
-  if (loading) return <Loading text="dashboard" />;
+  if (loading) return <LogoLoading />;
 
   // Stats
   const totalCalories = progress.reduce((sum, p) => sum + (p.caloriesBurned ?? 0), 0);

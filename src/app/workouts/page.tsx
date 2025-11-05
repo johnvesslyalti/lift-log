@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import WorkoutDialog from "./workout-dialog";
 import { MdFitnessCenter } from "react-icons/md";
-import Loading from "@/components/loading";
 import { handleError } from "@/components/error-handle";
+import LogoLoading from "../logo-loading/page";
 
 interface Exercise {
   id: string;
@@ -48,7 +48,7 @@ export default function WorkoutsPage() {
   }, [fetchWorkouts]);
 
   if (status === "loading" || status === "idle") {
-    return <Loading text="workouts" />;
+    return <LogoLoading />
   }
 
   return (
