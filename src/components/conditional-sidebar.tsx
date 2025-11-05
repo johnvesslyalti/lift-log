@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation"
 import SidebarLayout from "./sidebar-layout"
 import React from "react"
 import Navbar from "./navbar"
+import Footer from "./footer"
 
 export default function ConditionalSidebar({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = React.useState(false)
@@ -21,6 +22,7 @@ export default function ConditionalSidebar({ children }: { children: React.React
     <>
     <Navbar />
     {children}
+    <Footer />
     </> ) : (
   <SidebarLayout>{children}</SidebarLayout>)
 }

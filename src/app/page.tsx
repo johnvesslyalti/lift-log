@@ -12,7 +12,6 @@ import { useRouter } from "next/navigation";
 import HandleLogin from "@/components/handle-login";
 import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
-import { ModeToggle } from "@/components/mode-toggle";
 import Hero from "@/components/landing-page/hero";
 
 export default function LandingPage() {
@@ -41,21 +40,7 @@ export default function LandingPage() {
 
   // Prefer primitives as deps; compose objects inside useMemo to avoid exhaustive-deps churn
   const easeOut: Transition["ease"] = "easeOut";
-  const baseDuration = 0.6;
   const fastDuration = 0.5;
-
-  // Variants with stable deps
-  const heroVariants: Variants = useMemo(
-    () => ({
-      hidden: { opacity: 0, y: 24 },
-      show: {
-        opacity: 1,
-        y: 0,
-        transition: { duration: baseDuration, ease: easeOut },
-      },
-    }),
-    [baseDuration, easeOut]
-  );
 
   const containerVariants: Variants = useMemo(
     () => ({
@@ -217,26 +202,6 @@ export default function LandingPage() {
               </div>
             </div>
           </section>
-
-          {/* Footer */}
-          <footer className="w-full border-t border-white/10 bg-white/[0.02] mt-auto">
-            <div className="container mx-auto flex flex-col md:flex-row items-center justify-between py-6 px-4 gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold">🏋️ Lift Log</span>
-                <span className="text-sm text-gray-400">
-                  Track • Train • Transform
-                </span>
-              </div>
-
-              <div className="text-sm text-gray-400">
-                © {new Date().getFullYear()} Lift Log. All rights reserved.
-              </div>
-
-              <div>
-                <ModeToggle />
-              </div>
-            </div>
-          </footer>
 
           {/* Reduced motion preference */}
           <style jsx global>{`
