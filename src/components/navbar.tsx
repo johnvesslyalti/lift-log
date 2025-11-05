@@ -6,7 +6,7 @@ const navbar_content = [
     {name: "Overview", refr: "#overview"},
     {name: "Features", refr: "#features"},
     {name: "Pricing", refr: "#pricing"},
-    {name: "CTA", refr: "cta"},
+    {name: "CTA", refr: "#cta"},
 ];
 
 export default function Navbar() {
