@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  motion,
-  useScroll,
-  useTransform,
-} from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import HandleLogin from "@/components/handle-login";
@@ -13,6 +9,7 @@ import Hero from "@/components/landing-page/hero";
 import LogoLoading from "./logo-loading/page";
 import Features from "@/components/landing-page/features";
 import Pricing from "@/components/landing-page/pricing";
+import CTASection from "@/components/landing-page/cta-section";
 
 export default function LandingPage() {
   // Hooks must be unconditional and at the top
@@ -49,9 +46,7 @@ export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[radial-gradient(1200px_800px_at_50%_-10%,#0f172a,transparent),linear-gradient(to_b,#0b1220,#030712_70%)] text-white">
       {/* Loading */}
-      {showLoading && (
-        <LogoLoading />
-      )}
+      {showLoading && <LogoLoading />}
 
       {/* Error */}
       {!showLoading && showError && (
@@ -76,8 +71,8 @@ export default function LandingPage() {
 
           <Hero />
           <Features />
+          <CTASection />
           <Pricing />
-
         </>
       )}
     </div>
