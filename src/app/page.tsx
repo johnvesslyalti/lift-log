@@ -14,6 +14,8 @@ import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
 import Hero from "@/components/landing-page/hero";
 import LogoLoading from "./logo-loading/page";
+import Features from "@/components/landing-page/features";
+import Pricing from "@/components/landing-page/pricing";
 
 export default function LandingPage() {
   // Hooks must be unconditional and at the top
@@ -127,6 +129,8 @@ export default function LandingPage() {
           </motion.div>
 
           <Hero />
+          <Features />
+          <Pricing />
 
           {/* Features */}
           <section
