@@ -1,74 +1,83 @@
-// components/Navbar.tsx
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { motion } from "motion/react";
+import { Button } from "./ui/button";
+
+const navbar_content = ["Showcase", "Docs", "Blog", "Templates", "Enterprise"];
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
-    <nav className="w-full border-b bg-background">
-      <div className="container mx-auto flex items-center justify-between px-4 py-4">
-        {/* Logo */}
-        <Link href="/" className="text-xl font-bold flex items-center gap-2">
-          🏋️ Lift Log
-        </Link>
+    <nav className="fixed top-4 left-1/2 -translate-x-1/2 w-[90%] md:w-[80%] z-50 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_rgba(0, 0, 0, 0.3)] transition-all duration-300">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 font-semibold text-lg">
+            <svg
+              width="64"
+              height="64"
+              viewBox="0 0 64 64"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient
+                  id="liftlogGradient"
+                  x1="0"
+                  y1="0"
+                  x2="64"
+                  y2="64"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop offset="0%" stop-color="#34d399" />
+                  <stop offset="50%" stop-color="#5eead4" />
+                  <stop offset="100%" stop-color="#14b8a6" />
+                </linearGradient>
+              </defs>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex items-center space-x-8 text-sm font-medium">
-          <Link href="/dashboard" className="hover:text-primary transition">
-            Dashboard
-          </Link>
-          <Link href="/workouts" className="hover:text-primary transition">
-            Workouts
-          </Link>
-          <Link href="/progress" className="hover:text-primary transition">
-            Progress
-          </Link>
-          <Link href="/settings" className="hover:text-primary transition">
-            Settings
-          </Link>
+              <path
+                d="M10 26H6V38H10V26ZM18 22H14V42H18V22ZM26 30V26H22V38H26V34H36L30 40L34 44L48 30L34 16L30 20L36 26H26ZM50 22H46V42H50V22ZM58 26H54V38H58V26Z"
+                fill="url(#liftlogGradient)"
+              />
+            </svg>
+
+            <span className="tracking-tight text-white">
+              Lift<span className="text-[10px]">Log</span>
+            </span>
+          </div>
+
+          <div className="hidden md:flex items-center gap-5 text-xs text-gray-300">
+            {navbar_content.map((navbar_con, index) => (
+              <motion.a
+                key={index}
+                href="johnvesslyalti.xyz"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ scale: 1.1, color: "#fff" }}
+                transition={{
+                  delay: 0.1 * index,
+                  duration: 0.3,
+                  ease: "easeOut",
+                }}
+                className="hover:text-white transition-colors"
+              >
+                {navbar_con}
+              </motion.a>
+            ))}
+          </div>
         </div>
 
-        {/* Call to Action */}
-        <div className="hidden md:flex">
-          <Button asChild>
-            <Link href="/profile">My Profile</Link>
+        <div className="flex items-center gap-3">
+          <input
+            placeholder="Search documentation"
+            className="hidden md:block rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-sm text-white placeholder-gray-300 outline-none focus:ring-2 focus:ring-white/30"
+          />
+          <button className="hidden md:block rounded-md bg-black text-white px-3 py-1.5 text-sm hover:opacity-80 transition">
+            Deploy
+          </button>
+          <Button className="bg-white text-black hover:bg-gray-200">
+            Learn
           </Button>
         </div>
-
-        {/* Mobile Hamburger */}
-        <button
-          className="md:hidden p-2 rounded-lg hover:bg-muted"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
       </div>
-
-      {/* Mobile Dropdown */}
-      {isOpen && (
-        <div className="md:hidden flex flex-col space-y-4 px-4 pb-4 border-t bg-background">
-          <Link href="/dashboard" onClick={() => setIsOpen(false)}>
-            Dashboard
-          </Link>
-          <Link href="/workouts" onClick={() => setIsOpen(false)}>
-            Workouts
-          </Link>
-          <Link href="/progress" onClick={() => setIsOpen(false)}>
-            Progress
-          </Link>
-          <Link href="/settings" onClick={() => setIsOpen(false)}>
-            Settings
-          </Link>
-          <Button asChild className="w-full mt-2">
-            <Link href="/profile">My Profile</Link>
-          </Button>
-        </div>
-      )}
     </nav>
   );
 }
