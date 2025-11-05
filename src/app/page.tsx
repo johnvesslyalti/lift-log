@@ -13,6 +13,7 @@ import HandleLogin from "@/components/handle-login";
 import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
 import { ModeToggle } from "@/components/mode-toggle";
+import Hero from "@/components/landing-page/hero";
 
 export default function LandingPage() {
   // Hooks must be unconditional and at the top
@@ -141,58 +142,7 @@ export default function LandingPage() {
             <div className="absolute right-20 top-64 h-56 w-56 rounded-full bg-teal-400/10 blur-2xl" />
           </motion.div>
 
-          {/* Hero */}
-          <section
-            className="relative flex flex-col items-center justify-center text-center py-24 px-6 md:py-28"
-            aria-labelledby="hero-heading"
-          >
-            <motion.h1
-              id="hero-heading"
-              variants={heroVariants}
-              initial="hidden"
-              animate="show"
-              className="text-5xl md:text-6xl font-extrabold mb-6 bg-gradient-to-r from-emerald-400 via-teal-300 to-teal-500 bg-clip-text text-transparent tracking-tight"
-            >
-              Track. Improve. Dominate.
-            </motion.h1>
-
-            <motion.p
-              variants={heroVariants}
-              initial="hidden"
-              animate="show"
-              className="text-lg md:text-xl text-gray-300 max-w-2xl mb-8"
-            >
-              LiftLog helps you stay consistent, visualize progress, and achieve
-              your dream physique.
-            </motion.p>
-
-            <motion.div variants={heroVariants} initial="hidden" animate="show">
-              <HandleLogin />
-            </motion.div>
-
-            {/* Hero preview */}
-            <motion.div
-              variants={heroVariants}
-              initial="hidden"
-              animate="show"
-              className="mt-12 w-full max-w-5xl"
-            >
-              <div className="relative mx-auto rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-2 shadow-2xl">
-                <Image
-                  src="/dashboard.png"
-                  alt="LiftLog dashboard preview"
-                  width={1600}
-                  height={900}
-                  priority
-                  className="rounded-2xl"
-                />
-                <div
-                  className="absolute inset-x-0 -bottom-6 mx-auto h-12 w-11/12 rounded-full bg-black/40 blur-2xl"
-                  aria-hidden
-                />
-              </div>
-            </motion.div>
-          </section>
+          <Hero />
 
           {/* Features */}
           <section

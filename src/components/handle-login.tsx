@@ -16,5 +16,5 @@ export default function HandleLogin() {
     }
   };
 
-  return <Button onClick={handlelogin}>Google</Button>;
+  return <Button onClick={handlelogin}>Dominate Today</Button>;
 }
