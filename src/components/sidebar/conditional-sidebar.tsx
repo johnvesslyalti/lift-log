@@ -30,8 +30,9 @@ export default function ConditionalSidebar({
       <Footer />
     </>
   ) : (
-    <SidebarProvider>
-      <AppSidebar>{children}</AppSidebar>
+    <SidebarProvider className="flex h-screen">
+      <AppSidebar />
+      <main className="flex-1 overflow-y-auto">{children}</main>
     </SidebarProvider>
   );
 }
