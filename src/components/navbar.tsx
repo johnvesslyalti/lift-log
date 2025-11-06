@@ -3,10 +3,10 @@
 import { motion } from "motion/react";
 
 const navbar_content = [
-    {name: "Overview", refr: "#overview"},
-    {name: "Features", refr: "#features"},
-    {name: "Pricing", refr: "#pricing"},
-    {name: "CTA", refr: "#cta"},
+  { name: "Overview", refr: "#overview" },
+  { name: "Features", refr: "#features" },
+  { name: "CTA", refr: "#cta" },
+  { name: "Pricing", refr: "#pricing" },
 ];
 
 export default function Navbar() {
