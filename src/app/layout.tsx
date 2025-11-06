@@ -1,6 +1,6 @@
 import './globals.css'
 import { ThemeProvider } from '../components/theme-provider'
-import ConditionalSidebar from '@/components/conditional-sidebar'
+import ConditionalSidebar from '@/components/sidebar/conditional-sidebar'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
