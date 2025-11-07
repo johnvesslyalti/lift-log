@@ -32,7 +32,42 @@ export async function GET() {
       caloriesBurned: p.caloriesBurned ?? null,
     }));
 
-    return NextResponse.json(result);
+    const weeklyData = () => {
+      const weeks: Record<string, typeof result> = {};
+
+      for (const entry of result) {
+        const date = new Date(entry.date);
+
+        const sunday = new Date(date);
+        sunday.setHours(0, 0, 0, 0);
+        sunday.setHours(sunday.getDate() - sunday.getDay());
+
+        const weekKey = sunday.toISOString().split("T")[0];
+
+        if (!weeks[weekKey]) weeks[weekKey] = [];
+        weeks[weekKey].push(entry);
+      }
+      return Object.entries(weeks).map(([weekStart, entries]) => {
+        return {
+          weekStart,
+          totalWorkouts: entries.length,
+          avgWeight:
+            entries.reduce((sum, e) => sum + (e.weight ?? 0), 0) /
+              entries.filter((e) => e.weight != null).length || null,
+          totalCaloriesBurned: entries.reduce(
+            (sum, e) => sum + (e.caloriesBurned ?? 0),
+            0
+          ),
+          entries,
+        };
+      });
+    };
+
+    return NextResponse.json({
+      success: true,
+      progress: result,
+      weekly: weeklyData,
+    });
   } catch (error: unknown) {
     console.error(error);
     return NextResponse.json(
@@ -105,7 +140,11 @@ export async function POST(req: Request) {
       await prisma.streak.upsert({
         where: { userId: session.user.id },
         update: { count: streakCount, lastDate: new Date() },
-        create: { userId: session.user.id, count: streakCount, lastDate: new Date() },
+        create: {
+          userId: session.user.id,
+          count: streakCount,
+          lastDate: new Date(),
+        },
       });
     }
 
