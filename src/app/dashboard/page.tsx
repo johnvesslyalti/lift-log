@@ -72,12 +72,17 @@ export default function Dashboard() {
   if (loading) return <LogoLoading />;
 
   // Stats
-  const totalCalories = progress.reduce((sum, p) => sum + (p.caloriesBurned ?? 0), 0);
+  const totalCalories = progress.reduce(
+    (sum, p) => sum + (p.caloriesBurned ?? 0),
+    0
+  );
   const averageWeight =
     progress.length > 0
       ? progress.reduce((sum, p) => sum + (p.weight ?? 0), 0) / progress.length
       : 0;
-  const activeDays = progress.filter((p) => p.caloriesBurned && p.caloriesBurned > 0).length;
+  const activeDays = progress.filter(
+    (p) => p.caloriesBurned && p.caloriesBurned > 0
+  ).length;
 
   // Chart
   const chartData = progress.slice(-7).map((p) => ({
@@ -90,15 +95,33 @@ export default function Dashboard() {
     <div className="min-h-screen p-6 md:p-8">
       {/* Header */}
       <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-3xl font-bold">{userName ? `Welcome, ${userName}` : "Dashboard"}</h1>
+        <h1 className="text-3xl font-bold">
+          {userName ? `Welcome, ${userName}` : "Dashboard"}
+        </h1>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-6">
-        <DashboardCard title="Total Calories Burned" value={totalCalories} color="red" />
-        <DashboardCard title="Average Weight (kg)" value={averageWeight.toFixed(1)} color="blue" />
-        <DashboardCard title="Active Days" value={activeDays} color="green" />
-        <DashboardCard title="🔥 Current Streak" value={streak} color="yellow" />
+        <DashboardCard
+          title="Total Calories Burned"
+          value={totalCalories}
+          color="text-lift-gradient"
+        />
+        <DashboardCard
+          title="Average Weight (kg)"
+          value={averageWeight.toFixed(1)}
+          color="text-lift-gradient"
+        />
+        <DashboardCard
+          title="Active Days"
+          value={activeDays}
+          color="text-lift-gradient"
+        />
+        <DashboardCard
+          title="Current Streak"
+          value={streak}
+          color="text-lift-gradient"
+        />
       </div>
 
       {/* Chart */}
@@ -111,8 +134,18 @@ export default function Dashboard() {
               <XAxis dataKey="day" stroke="#aaa" />
               <YAxis stroke="#aaa" />
               <Tooltip />
-              <Line type="monotone" dataKey="calories" stroke="#f87171" strokeWidth={2} />
-              <Line type="monotone" dataKey="weight" stroke="#60a5fa" strokeWidth={2} />
+              <Line
+                type="monotone"
+                dataKey="calories"
+                stroke="#f87171"
+                strokeWidth={2}
+              />
+              <Line
+                type="monotone"
+                dataKey="weight"
+                stroke="#60a5fa"
+                strokeWidth={2}
+              />
             </LineChart>
           </ResponsiveContainer>
         ) : (
@@ -145,19 +178,12 @@ function DashboardCard({
 }: {
   title: string;
   value: number | string;
-  color?: "red" | "blue" | "green" | "yellow";
+  color?: string;
 }) {
-  const colorClasses: Record<"red" | "blue" | "green" | "yellow", string> = {
-    red: "text-red-500",
-    blue: "text-blue-500",
-    green: "text-green-500",
-    yellow: "text-yellow-400",
-  };
-
   return (
     <div className="relative group rounded-2xl backdrop-blur-xl border border-neutral-800/70 shadow-lg p-6 overflow-hidden">
       <h3 className="text-sm font-medium mb-2">{title}</h3>
-      <p className={`text-2xl font-bold ${color ? colorClasses[color] : ""}`}>{value}</p>
+      <p className={`text-2xl font-bold ${color}`}>{value}</p>
     </div>
   );
 }
