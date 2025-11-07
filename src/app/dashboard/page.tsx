@@ -101,7 +101,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-8">
         <DashboardCard
           title="Total Calories Burned"
           value={totalCalories}
@@ -125,7 +125,7 @@ export default function Dashboard() {
       </div>
 
       {/* Chart */}
-      <div className="relative rounded-2xl shadow-xl backdrop-blur-xl border border-neutral-800/70 p-6 overflow-hidden mb-6">
+      <div className="relative rounded-2xl shadow-lift-gradient backdrop-blur-xl border border-neutral-800/70 p-6 overflow-hidden my-10">
         <h2 className="text-xl font-semibold mb-4">Weekly Progress</h2>
         {chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={250}>
@@ -181,7 +181,7 @@ function DashboardCard({
   color?: string;
 }) {
   return (
-    <div className="relative group rounded-2xl backdrop-blur-xl border border-neutral-800/70 shadow-lg p-6 overflow-hidden">
+    <div className="relative group rounded-2xl backdrop-blur-xl border border-neutral-800/70 shadow-lift-gradient p-6 overflow-hidden">
       <h3 className="text-sm font-medium mb-2">{title}</h3>
       <p className={`text-2xl font-bold ${color}`}>{value}</p>
     </div>
