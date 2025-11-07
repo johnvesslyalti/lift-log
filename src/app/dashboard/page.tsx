@@ -86,9 +86,6 @@ export default function Dashboard() {
     weight: p.weight ?? 0,
   }));
 
-  // Recent
-  const recentEntries = [...progress].reverse().slice(0, 3);
-
   return (
     <div className="min-h-screen p-6 md:p-8">
       {/* Header */}
@@ -120,30 +117,6 @@ export default function Dashboard() {
           </ResponsiveContainer>
         ) : (
           <p className="text-gray-400 text-center">No progress data yet</p>
-        )}
-      </div>
-
-      {/* Recent Workouts */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6">
-        {recentEntries.length > 0 ? (
-          recentEntries.map((entry, index) => (
-            <div
-              key={entry.id}
-              className="relative group rounded-2xl backdrop-blur-xl border border-neutral-800/70 shadow-lg p-6 overflow-hidden"
-              style={{ animation: `fadeIn 0.5s ease-out ${index * 0.1}s both` }}
-            >
-              <h3 className="text-lg font-bold mb-2">{entry.workout}</h3>
-              <p className="text-sm text-neutral-400 mb-2">{new Date(entry.date).toLocaleDateString()}</p>
-              <div className="flex gap-4 text-sm text-neutral-400">
-                <span>🔥 Calories: {entry.caloriesBurned ?? 0}</span>
-                <span>⚖️ Weight: {entry.weight ?? "N/A"} kg</span>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="col-span-full rounded-2xl shadow-xl p-12 text-center border border-neutral-800/70">
-            <p className="text-neutral-400">No workouts logged yet</p>
-          </div>
         )}
       </div>
 
