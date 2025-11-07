@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Home, Dumbbell, List, BarChart, Settings } from "lucide-react";
+import { Home, Dumbbell, List, BarChart } from "lucide-react";
 import { useUserStore } from "@/store/userStore";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
@@ -19,7 +19,6 @@ export default function AppSidebar() {
     { name: "Workouts", href: "/workouts", icon: <Dumbbell size={20} /> },
     { name: "Exercises", href: "/exercises", icon: <List size={20} /> },
     { name: "Progress", href: "/progress", icon: <BarChart size={20} /> },
-    { name: "Settings", href: "/settings", icon: <Settings size={20} /> },
   ];
 
   return (
