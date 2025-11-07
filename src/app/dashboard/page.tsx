@@ -49,10 +49,12 @@ export default function Dashboard() {
         }
 
         // Fetch progress
+        // Fetch progress
         const progressRes = await fetch("/api/progress");
         if (!progressRes.ok) throw new Error("Failed to fetch progress");
-        const progressData: ProgressEntry[] = await progressRes.json();
-        setProgress(progressData);
+
+        const { progress: progressList } = await progressRes.json();
+        setProgress(progressList);
 
         // Fetch streak
         const streakRes = await fetch("/api/streak");

@@ -25,11 +25,14 @@ export default function Progress() {
     try {
       setLoading(true);
       setError("");
+
       const res = await fetch("/api/progress");
-      if (!res.ok) throw new Error(`Failed to fetch progress (${res.status})`);
-      const data: DailySummary[] = await res.json();
-      setProgress(data);
-    } catch (err: unknown) {
+      const data = await res.json(); // data.progress & data.weekly
+
+      if (!data.success) throw new Error("Failed to fetch progress");
+
+      setProgress(data.progress); // ✅ THIS is the array you want
+    } catch (err) {
       const errMsg = handleError(err);
       setError(typeof errMsg === "string" ? errMsg : "An error occurred.");
     } finally {
@@ -74,7 +77,8 @@ export default function Progress() {
               <div>
                 <h1 className="text-3xl font-bold">My Progress</h1>
                 <p className="text-neutral-400 mt-1">
-                  {progress.length} {progress.length === 1 ? "entry" : "entries"} tracked
+                  {progress.length}{" "}
+                  {progress.length === 1 ? "entry" : "entries"} tracked
                 </p>
               </div>
             </div>
@@ -102,7 +106,9 @@ export default function Progress() {
             </p>
             <div className="flex items-center justify-center gap-2 text-gray-400">
               <AiOutlineCheckCircle className="text-xl" />
-              <span className="font-medium">Click &quot;Add Workout Session&quot; to begin</span>
+              <span className="font-medium">
+                Click &quot;Add Workout Session&quot; to begin
+              </span>
             </div>
           </div>
         )}
@@ -114,7 +120,9 @@ export default function Progress() {
               <div
                 key={entry.date}
                 className="relative group rounded-2xl backdrop-blur-xl border border-neutral-800/70 shadow-lg hover:shadow-black/50 dark:hover:shadow-white/50 transition-all duration-500 overflow-hidden p-[1px]"
-                style={{ animation: `fadeIn 0.5s ease-out ${index * 0.1}s both` }}
+                style={{
+                  animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`,
+                }}
               >
                 {/* Card Header */}
                 <div className="p-6 relative overflow-hidden">
@@ -149,8 +157,12 @@ export default function Progress() {
 
                   <div className="grid grid-cols-1 gap-4 mt-4">
                     <div className="rounded-xl p-4 border border-neutral-800">
-                      <p className="text-sm text-neutral-400">Calories Burned</p>
-                      <p className="text-2xl font-bold">{entry.caloriesBurned}</p>
+                      <p className="text-sm text-neutral-400">
+                        Calories Burned
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {entry.caloriesBurned}
+                      </p>
                     </div>
                     {entry.weight !== null && (
                       <div className="rounded-xl p-4 border border-neutral-800">
