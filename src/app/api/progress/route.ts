@@ -40,7 +40,7 @@ export async function GET() {
 
         const sunday = new Date(date);
         sunday.setHours(0, 0, 0, 0);
-        sunday.setHours(sunday.getDate() - sunday.getDay());
+        sunday.setDate(sunday.getDate() - sunday.getDay());
 
         const weekKey = sunday.toISOString().split("T")[0];
 
@@ -66,7 +66,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       progress: result,
-      weekly: weeklyData,
+      weekly: weeklyData(),
     });
   } catch (error: unknown) {
     console.error(error);
