@@ -11,17 +11,23 @@ export default function HandleLogout() {
 
   const handleLogout = async () => {
     try {
-      const { error } = await authClient.signOut(); // or whatever your client returns
+      // ✅ Ensure cookie is included during logout
+      const { error } = await authClient.signOut({
+        fetchOptions: {
+          credentials: "include",
+        },
+      });
+
       if (error) {
         console.error("Logout failed:", error);
         return;
       }
 
-      // Clear user state
+      // ✅ Clear persisted store AFTER logout finishes
       clearUser();
 
-      // Redirect after logout
-      router.push("/");
+      // ✅ Replace so the user cannot go back to protected pages
+      router.replace("/");
     } catch (err) {
       console.error("Unexpected error during logout:", err);
     }

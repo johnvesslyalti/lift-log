@@ -13,7 +13,7 @@ interface User {
 
 interface UserStore {
   user: User | null;
-  setUser: (user: User) => void;
+  setUser: (update: User | ((prev: User | null) => User)) => void;
   clearUser: () => void;
 }
 
@@ -21,11 +21,16 @@ export const useUserStore = create<UserStore>()(
   persist(
     (set) => ({
       user: null,
-      setUser: (user) => set({ user }),
+
+      setUser: (update) =>
+        set((state) => ({
+          user: typeof update === "function" ? update(state.user) : update,
+        })),
+
       clearUser: () => set({ user: null }),
     }),
     {
-      name: "liftlog-user", // key name in localStorage
+      name: "liftlog-user",
     }
   )
 );

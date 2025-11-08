@@ -13,7 +13,9 @@ interface StreakData {
 export default function Profile() {
   const { user, setUser } = useUserStore();
   const [streak, setStreak] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch streak
   useEffect(() => {
     const fetchStreak = async () => {
       try {
@@ -29,26 +31,37 @@ export default function Profile() {
     fetchStreak();
   }, []);
 
+  // Fetch profile (always if user missing or has incomplete data)
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await fetch("/api/profile", { credentials: "include" });
         if (!res.ok) throw new Error("Failed to fetch profile data");
         const data = await res.json();
-        if (user) setUser({ ...user, ...data });
+
+        // Safely merge into store
+        setUser((prev) => ({ ...prev, ...data }));
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    // Fetch height/weight if missing
-    if (user && (user.height == null || user.weight == null)) {
+    if (!user || user.height == null || user.weight == null) {
       fetchProfile();
+    } else {
+      setLoading(false);
     }
   }, [user, setUser]);
 
-  if (!user) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  // Loading UI
+  if (loading || !user) {
+    return (
+      <div className="flex items-center justify-center h-screen text-xl font-medium">
+        Loading...
+      </div>
+    );
   }
 
   return (
@@ -63,7 +76,7 @@ export default function Profile() {
             className="rounded-full object-cover border-4 shadow-lg"
           />
         ) : (
-          <div className="w-40 h-40 flex items-center justify-center bg-gray-600 rounded-full text-5xl font-bold shadow-lg border-4">
+          <div className="w-40 h-40 flex items-center justify-center bg-gray-700 rounded-full text-5xl font-bold shadow-lg border-4">
             {user.name?.[0] ?? "U"}
           </div>
         )}
@@ -71,7 +84,9 @@ export default function Profile() {
 
       {/* User Info */}
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold mb-1">Hello, {user.name ?? "User"}!</h1>
+        <h1 className="text-2xl font-bold mb-1">
+          Hello, {user.name ?? "User"}!
+        </h1>
         <p className="text-gray-400">{user.email}</p>
       </div>
 
@@ -81,10 +96,12 @@ export default function Profile() {
           <CardHeader>📏 Height</CardHeader>
           <CardContent>{user.height ?? "N/A"} cm</CardContent>
         </Card>
+
         <Card className="transition p-4 rounded-2xl shadow-lg">
           <CardHeader>⚖️ Weight</CardHeader>
           <CardContent>{user.weight ?? "N/A"} kg</CardContent>
         </Card>
+
         <Card className="transition p-4 rounded-2xl shadow-lg">
           <CardHeader>🔥 Current Streak</CardHeader>
           <CardContent>{streak}</CardContent>
