@@ -55,7 +55,7 @@ export default function WorkoutsPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <header
-          className="rounded-2xl shadow-xl p-6 md:p-8 mb-8 border border-neutral-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+          className="rounded-2xl shadow-lift-gradient p-6 md:p-8 mb-8 border border-neutral-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
           aria-label="Workouts header"
         >
           <div className="flex items-center gap-4">
@@ -143,7 +143,7 @@ export default function WorkoutsPage() {
             {workouts.map((w, index) => (
               <article
                 key={w.id}
-                className="relative group rounded-2xl backdrop-blur-xl border border-neutral-800/70 shadow-lg hover:shadow-black/50 dark:hover:shadow-white/50 transition-all duration-500 overflow-hidden p-[1px]"
+                className="relative group rounded-2xl backdrop-blur-xl border border-teal-950 shadow-lg hover:shadow-black/50 dark:hover:shadow-teal-500 transition-all duration-500 overflow-hidden p-[1px]"
                 style={{
                   animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`,
                 }}
