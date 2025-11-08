@@ -14,13 +14,14 @@ export default function Profile() {
   const { user, setUser } = useUserStore();
   const [streak, setStreak] = useState<number>(0);
   const [loading, setLoading] = useState(true);
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
-  // Fetch streak
+  // Fetch streak once
   useEffect(() => {
     const fetchStreak = async () => {
       try {
         const res = await fetch("/api/streak", { credentials: "include" });
-        if (!res.ok) throw new Error("Failed to fetch streak");
+        if (!res.ok) return;
         const data: StreakData = await res.json();
         setStreak(data.streak ?? 0);
       } catch (err) {
@@ -31,29 +32,26 @@ export default function Profile() {
     fetchStreak();
   }, []);
 
-  // Fetch profile (always if user missing or has incomplete data)
+  // Fetch profile only once, or when we haven't loaded it yet.
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await fetch("/api/profile", { credentials: "include" });
         if (!res.ok) throw new Error("Failed to fetch profile data");
         const data = await res.json();
-
-        // Safely merge into store
         setUser((prev) => ({ ...prev, ...data }));
       } catch (err) {
         console.error(err);
       } finally {
+        setProfileLoaded(true);
         setLoading(false);
       }
     };
 
-    if (!user || user.height == null || user.weight == null) {
+    if (!profileLoaded) {
       fetchProfile();
-    } else {
-      setLoading(false);
     }
-  }, [user, setUser]);
+  }, [profileLoaded, setUser]);
 
   // Loading UI
   if (loading || !user) {
@@ -90,19 +88,19 @@ export default function Profile() {
         <p className="text-gray-400">{user.email}</p>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6 w-full max-w-3xl">
-        <Card className="transition p-4 rounded-2xl shadow-lg">
+        <Card className="p-4 rounded-2xl shadow-lg">
           <CardHeader>📏 Height</CardHeader>
           <CardContent>{user.height ?? "N/A"} cm</CardContent>
         </Card>
 
-        <Card className="transition p-4 rounded-2xl shadow-lg">
+        <Card className="p-4 rounded-2xl shadow-lg">
           <CardHeader>⚖️ Weight</CardHeader>
           <CardContent>{user.weight ?? "N/A"} kg</CardContent>
         </Card>
 
-        <Card className="transition p-4 rounded-2xl shadow-lg">
+        <Card className="p-4 rounded-2xl shadow-lg">
           <CardHeader>🔥 Current Streak</CardHeader>
           <CardContent>{streak}</CardContent>
         </Card>
