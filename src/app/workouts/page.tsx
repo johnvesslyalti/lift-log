@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import WorkoutDialog from "./workout-dialog";
-import { MdFitnessCenter } from "react-icons/md";
 import { handleError } from "@/components/error-handle";
 import LogoLoading from "../logo-loading/page";
 
@@ -39,7 +38,7 @@ export default function WorkoutsPage() {
       setWorkouts(data || []);
       setStatus("success");
     } catch (error) {
-      handleError(error)
+      handleError(error);
     }
   }, []);
 
@@ -48,7 +47,7 @@ export default function WorkoutsPage() {
   }, [fetchWorkouts]);
 
   if (status === "loading" || status === "idle") {
-    return <LogoLoading />
+    return <LogoLoading />;
   }
 
   return (
@@ -60,12 +59,33 @@ export default function WorkoutsPage() {
           aria-label="Workouts header"
         >
           <div className="flex items-center gap-4">
-            <div
-              className="p-4 rounded-2xl shadow-lg"
-              aria-hidden="true"
+            <svg
+              width="70"
+              height="70"
+              viewBox="0 0 64 64"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <MdFitnessCenter className="text-3xl" />
-            </div>
+              <defs>
+                <linearGradient
+                  id="liftlogGradient"
+                  x1="0"
+                  y1="0"
+                  x2="64"
+                  y2="64"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop offset="0%" stopColor="#34d399" />
+                  <stop offset="50%" stopColor="#5eead4" />
+                  <stop offset="100%" stopColor="#14b8a6" />
+                </linearGradient>
+              </defs>
+
+              <path
+                d="M10 26H6V38H10V26ZM18 22H14V42H18V22ZM26 30V26H22V38H26V34H36L30 40L34 44L48 30L34 16L30 20L36 26H26ZM50 22H46V42H50V22ZM58 26H54V38H58V26Z"
+                fill="url(#liftlogGradient)"
+              />
+            </svg>
             <div>
               <h1 className="text-3xl font-bold">My Workouts</h1>
               <p
@@ -106,9 +126,7 @@ export default function WorkoutsPage() {
             aria-live="polite"
             aria-atomic="true"
           >
-            <h3 className="text-2xl font-bold mb-3">
-              No Workouts Yet
-            </h3>
+            <h3 className="text-2xl font-bold mb-3">No Workouts Yet</h3>
             <p className="mb-6 max-w-md mx-auto">
               Start tracking your fitness journey by adding your first workout
               using the button above!
@@ -159,7 +177,8 @@ export default function WorkoutsPage() {
                   >
                     {w.workoutExercises?.length
                       ? w.workoutExercises
-                          .map((we) => we.Exercise?.name || "Unnamed Exercise").join(", ")
+                          .map((we) => we.Exercise?.name || "Unnamed Exercise")
+                          .join(", ")
                       : "No exercises yet"}
                   </p>
 
