@@ -81,12 +81,36 @@ export default function Exercise() {
     <div className="min-h-screen p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="dark:bg-neutral-950 rounded-2xl shadow-xl p-6 md:p-8 mb-8 border border-neutral-800">
+        <div className="dark:bg-neutral-950 rounded-2xl shadow-lift-gradient p-6 md:p-8 mb-8 border border-neutral-800">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex items-center gap-4">
-              <div className="dark:bg-neutral-950 p-4 rounded-2xl shadow-lg">
-                <MdFitnessCenter className="text-3xl" />
-              </div>
+              <svg
+                width="70"
+                height="70"
+                viewBox="0 0 64 64"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <defs>
+                  <linearGradient
+                    id="liftlogGradient"
+                    x1="0"
+                    y1="0"
+                    x2="64"
+                    y2="64"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop offset="0%" stopColor="#34d399" />
+                    <stop offset="50%" stopColor="#5eead4" />
+                    <stop offset="100%" stopColor="#14b8a6" />
+                  </linearGradient>
+                </defs>
+
+                <path
+                  d="M10 26H6V38H10V26ZM18 22H14V42H18V22ZM26 30V26H22V38H26V34H36L30 40L34 44L48 30L34 16L30 20L36 26H26ZM50 22H46V42H50V22ZM58 26H54V38H58V26Z"
+                  fill="url(#liftlogGradient)"
+                />
+              </svg>
               <div>
                 <h1 className="text-3xl font-bold ">My Exercises</h1>
                 <p className="text-neutral-400 mt-1">
@@ -135,7 +159,7 @@ export default function Exercise() {
             {exercises.map((ex, index) => (
               <div
                 key={ex.id}
-                className="elative group rounded-2xl backdrop-blur-xl border border-neutral-800/70 shadow-lg hover:shadow-black/50 dark:hover:shadow-white/50 transition-all duration-500 overflow-hidden p-[1px]"
+                className="relative group rounded-2xl backdrop-blur-xl border border-teal-950 shadow-lg hover:shadow-black/50 dark:hover:shadow-teal-500 transition-all duration-500 overflow-hidden p-[1px]"
                 style={{
                   animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`,
                 }}
