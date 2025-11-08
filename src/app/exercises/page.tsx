@@ -7,7 +7,7 @@ import { MdFitnessCenter, MdDelete } from "react-icons/md";
 import { FiRepeat } from "react-icons/fi";
 import { BiDumbbell } from "react-icons/bi";
 import { AiOutlineCheckCircle } from "react-icons/ai";
-import Loading from "@/components/loading";
+import LogoLoading from "../logo-loading/page";
 
 export interface Exercise {
   id: number;
@@ -74,7 +74,7 @@ export default function Exercise() {
   }, []);
 
   if (loading) {
-    return <Loading text="exercises" />;
+    return <LogoLoading />
   }
 
   return (

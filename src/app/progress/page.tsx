@@ -6,7 +6,7 @@ import { handleError } from "@/components/error-handle";
 import { MdDelete } from "react-icons/md";
 import { BiDumbbell } from "react-icons/bi";
 import { AiOutlineCheckCircle } from "react-icons/ai";
-import Loading from "@/components/loading";
+import LogoLoading from "../logo-loading/page";
 
 export interface DailySummary {
   date: string; // ISO string
@@ -62,7 +62,7 @@ export default function Progress() {
     fetchProgress();
   }, []);
 
-  if (loading) return <Loading text="progress entries" />;
+  if (loading) return <LogoLoading />
 
   return (
     <div className="min-h-screen p-6 md:p-8">
