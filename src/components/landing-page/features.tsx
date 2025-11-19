@@ -10,6 +10,7 @@ import {
   Flame,
   BarChart3,
   LineChart,
+  Trophy
 } from "lucide-react";
 
 const FEATURES = [
@@ -53,6 +54,11 @@ const FEATURES = [
     desc: "Insights, charts, and progress in one focused view.",
     Icon: LineChart,
   },
+  {
+    title: "Personal Best Tracking",
+    desc: "Automatically track PRs for every exercise and celebrate new records.",
+    Icon: Trophy,
+  }
 ];
 
 export default function Features() {
