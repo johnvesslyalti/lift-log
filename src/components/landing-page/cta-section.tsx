@@ -7,10 +7,10 @@ import Image from "next/image";
 
 export default function CTASection() {
   const slides = [
-    "/dashboard.png",
-    "/exercise.png",
-    "/progress.png",
-    "/workout.png",
+    "/1.png",
+    "/2.png",
+    "/3.png",
+    "/4.png",
   ];
 
   const [current, setCurrent] = useState(0);
