@@ -46,7 +46,15 @@ export default function Progress() {
 
     try {
       setDeleteDate(date);
-      const res = await fetch(`/api/progress`, { method: "DELETE" });
+
+      const res = await fetch(`/api/progress`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ date }),
+      });
+
       if (!res.ok) throw new Error("Failed to delete entry");
 
       fetchProgress();
@@ -57,6 +65,7 @@ export default function Progress() {
       setDeleteDate(null);
     }
   };
+
 
   useEffect(() => {
     fetchProgress();

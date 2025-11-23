@@ -83,7 +83,24 @@ export default function Dashboard() {
 
   const activeDays = progress.filter((p) => p.caloriesBurned).length;
 
-  // Always show full week: Sun → Sat
+  // ---------------------------
+  // ✔ FIXED: Calculate THIS WEEK ONLY (Sun → Today)
+  // ---------------------------
+  const now = new Date();
+
+  const weekStart = new Date(now);
+  weekStart.setHours(0, 0, 0, 0);
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+
+  const weekEnd = new Date(now);
+  weekEnd.setHours(23, 59, 59, 999);
+
+  const thisWeekProgress = progress.filter((p) => {
+    const d = new Date(p.date);
+    return d >= weekStart && d <= weekEnd;
+  });
+
+  // Build Sun → Sat graph with fresh data
   const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const weeklyDailyData = weekdays.map((day) => ({
     day,
@@ -91,13 +108,17 @@ export default function Dashboard() {
     weight: 0,
   }));
 
-  progress.forEach((p) => {
-    const date = new Date(p.date);
-    const weekdayIndex = date.getDay();
-    weeklyDailyData[weekdayIndex].calories += p.caloriesBurned ?? 0;
-    weeklyDailyData[weekdayIndex].weight =
-      p.weight ?? weeklyDailyData[weekdayIndex].weight;
+  thisWeekProgress.forEach((p) => {
+    const d = new Date(p.date);
+    const idx = d.getDay();
+    weeklyDailyData[idx].calories += p.caloriesBurned ?? 0;
+    weeklyDailyData[idx].weight =
+      p.weight ?? weeklyDailyData[idx].weight;
   });
+
+  // ---------------------------
+  // END FIX
+  // ---------------------------
 
   return (
     <motion.div
@@ -130,7 +151,7 @@ export default function Dashboard() {
 
         <ResponsiveContainer width="100%" height={320}>
           <BarChart data={weeklyDailyData}>
-            <XAxis dataKey="day" stroke="#94a3b8" /> {/* slate-400 */}
+            <XAxis dataKey="day" stroke="#94a3b8" />
             <YAxis stroke="#94a3b8" />
             <Tooltip
               cursor={{ fill: "transparent" }}
@@ -142,7 +163,7 @@ export default function Dashboard() {
               }}
               labelStyle={{ color: "#fff" }}
             />
-            {/* Calories Bar - Gradient Teal */}
+
             <Bar
               dataKey="calories"
               name="Calories Burned"
@@ -150,7 +171,7 @@ export default function Dashboard() {
               radius={[6, 6, 0, 0]}
               fill="url(#tealGradient)"
             />
-            {/* Weight Bar - Slightly Different Shade */}
+
             <Bar
               dataKey="weight"
               name="Weight (kg)"
@@ -158,7 +179,7 @@ export default function Dashboard() {
               radius={[6, 6, 0, 0]}
               fill="url(#tealBlueGradient)"
             />
-            {/* Gradient Definitions */}
+
             <defs>
               <linearGradient id="tealGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#2dd4bf" />
