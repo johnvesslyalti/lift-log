@@ -9,7 +9,8 @@ import { AiOutlineCheckCircle } from "react-icons/ai";
 import LogoLoading from "../logo-loading/page";
 
 export interface DailySummary {
-  date: string; // ISO string
+  id: string;
+  date: string;
   caloriesBurned: number;
   weight: number | null;
 }
@@ -18,20 +19,24 @@ export default function Progress() {
   const [progress, setProgress] = useState<DailySummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [deleteDate, setDeleteDate] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  // Fetch progress
+  // Modal states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Fetch progress data
   const fetchProgress = async () => {
     try {
       setLoading(true);
       setError("");
 
       const res = await fetch("/api/progress");
-      const data = await res.json(); // data.progress & data.weekly
+      const data = await res.json();
 
       if (!data.success) throw new Error("Failed to fetch progress");
 
-      setProgress(data.progress); // ✅ THIS is the array you want
+      setProgress(data.progress);
     } catch (err) {
       const errMsg = handleError(err);
       setError(typeof errMsg === "string" ? errMsg : "An error occurred.");
@@ -40,38 +45,37 @@ export default function Progress() {
     }
   };
 
-  // Delete progress entry
-  const handleDelete = async (date: string) => {
-    if (!confirm("Are you sure you want to delete this entry?")) return;
+  // Delete item after confirmation
+  const confirmDelete = async () => {
+    if (!selectedId) return;
 
     try {
-      setDeleteDate(date);
+      setDeleteId(selectedId);
 
       const res = await fetch(`/api/progress`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ date }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: selectedId }),
       });
 
       if (!res.ok) throw new Error("Failed to delete entry");
 
-      fetchProgress();
+      await fetchProgress();
     } catch (err) {
       const errMsg = handleError(err);
       setError(typeof errMsg === "string" ? errMsg : "An error occurred.");
     } finally {
-      setDeleteDate(null);
+      setDeleteId(null);
+      setShowDeleteModal(false);
+      setSelectedId(null);
     }
   };
-
 
   useEffect(() => {
     fetchProgress();
   }, []);
 
-  if (loading) return <LogoLoading />
+  if (loading) return <LogoLoading />;
 
   return (
     <div className="min-h-screen p-6 md:p-8">
@@ -115,6 +119,7 @@ export default function Progress() {
                 </p>
               </div>
             </div>
+
             <ProgressDialog onsuccess={fetchProgress} />
           </div>
         </div>
@@ -127,7 +132,7 @@ export default function Progress() {
           </div>
         )}
 
-        {/* Empty state */}
+        {/* Empty State */}
         {progress.length === 0 && !error && (
           <div className="rounded-2xl shadow-xl p-12 text-center border border-neutral-800 dark:bg-neutral-950">
             <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -146,12 +151,12 @@ export default function Progress() {
           </div>
         )}
 
-        {/* Progress Grid */}
+        {/* Progress Cards */}
         {progress.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {progress.map((entry, index) => (
               <div
-                key={entry.date}
+                key={entry.id}
                 className="relative group rounded-2xl backdrop-blur-xl border border-teal-950 shadow-lg hover:shadow-black/50 dark:hover:shadow-teal-500 transition-all duration-500 overflow-hidden p-[1px]"
                 style={{
                   animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`,
@@ -164,17 +169,19 @@ export default function Progress() {
                     <div className="p-3 rounded-xl backdrop-blur-sm">
                       <BiDumbbell className="text-2xl" />
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleDelete(entry.date)}
-                        disabled={deleteDate === entry.date}
-                        className="hover:bg-red-600 p-2 rounded-lg backdrop-blur-sm transition-all duration-200 disabled:opacity-50"
-                        title="Delete entry"
-                        aria-label="Delete entry"
-                      >
-                        <MdDelete className="text-lg" />
-                      </button>
-                    </div>
+
+                    <button
+                      onClick={() => {
+                        setSelectedId(entry.id);
+                        setShowDeleteModal(true);
+                      }}
+                      disabled={deleteId === entry.id}
+                      className="hover:bg-red-600 p-2 rounded-lg backdrop-blur-sm transition-all duration-200 disabled:opacity-50"
+                      title="Delete entry"
+                      aria-label="Delete entry"
+                    >
+                      <MdDelete className="text-lg" />
+                    </button>
                   </div>
                 </div>
 
@@ -190,13 +197,10 @@ export default function Progress() {
 
                   <div className="grid grid-cols-1 gap-4 mt-4">
                     <div className="rounded-xl p-4 border border-neutral-800">
-                      <p className="text-sm text-neutral-400">
-                        Calories Burned
-                      </p>
-                      <p className="text-2xl font-bold">
-                        {entry.caloriesBurned}
-                      </p>
+                      <p className="text-sm text-neutral-400">Calories Burned</p>
+                      <p className="text-2xl font-bold">{entry.caloriesBurned}</p>
                     </div>
+
                     {entry.weight !== null && (
                       <div className="rounded-xl p-4 border border-neutral-800">
                         <p className="text-sm text-neutral-400">Weight</p>
@@ -211,7 +215,42 @@ export default function Progress() {
         )}
       </div>
 
-      {/* Animation Keyframes */}
+      {/* DELETE CONFIRMATION MODAL */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 w-[90%] max-w-md shadow-xl animate-fadeInDown">
+            <h2 className="text-2xl font-bold mb-4 text-red-400">
+              Delete This Entry?
+            </h2>
+
+            <p className="text-neutral-300 mb-6">
+              This action cannot be undone. Are you sure you want to delete this progress entry?
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setSelectedId(null);
+                }}
+                className="px-4 py-2 rounded-xl border border-neutral-700 hover:bg-neutral-800 transition"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={confirmDelete}
+                disabled={deleteId === selectedId}
+                className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 transition disabled:opacity-50"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Styles */}
       <style jsx>{`
         @keyframes fadeIn {
           from {
@@ -222,6 +261,19 @@ export default function Progress() {
             opacity: 1;
             transform: translateY(0);
           }
+        }
+        @keyframes fadeInDown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeInDown {
+          animation: fadeInDown 0.25s ease-out;
         }
       `}</style>
     </div>
