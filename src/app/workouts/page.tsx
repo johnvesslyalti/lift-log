@@ -23,6 +23,8 @@ interface Workout {
 
 export default function WorkoutsPage() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [open, setOpen] = useState<boolean>(false);
+  const [workout, setWorkout] = useState<Workout>();
   const [status, setStatus] = useState<
     "idle" | "loading" | "error" | "success"
   >("idle");
@@ -42,6 +44,11 @@ export default function WorkoutsPage() {
     }
   }, []);
 
+  const viewDetails = useCallback((workout: Workout) => {
+    setWorkout(workout);
+    setOpen(true)
+  }, [])
+
   useEffect(() => {
     fetchWorkouts();
   }, [fetchWorkouts]);
@@ -52,6 +59,32 @@ export default function WorkoutsPage() {
 
   return (
     <div className="min-h-screen p-6 md:p-8">
+      {open && workout && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
+
+          {/* Modal container */}
+          <div className="relative shadow-lift-gradient bg-neutral-900 p-6 rounded-xl w-[90%] max-w-lg">
+
+            {/* Close button */}
+            <button
+              className="absolute right-4 top-4 px-3 py-1 rounded-md border text-lg"
+              onClick={() => setOpen(false)}
+            >
+              ✕
+            </button>
+
+            <h2 className="text-2xl font-bold mb-4">{workout.name}</h2>
+
+            <p className="mb-2 font-semibold">Exercises:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              {workout.workoutExercises?.map((we) => (
+                <li key={`${we.id}-${we.Exercise.id}`}>{we.Exercise?.name}</li>
+              ))}
+            </ul>
+          </div>
+
+        </div>
+      )}
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <header
@@ -177,14 +210,16 @@ export default function WorkoutsPage() {
                   >
                     {w.workoutExercises?.length
                       ? w.workoutExercises
-                          .map((we) => we.Exercise?.name || "Unnamed Exercise")
-                          .join(", ")
+                        .map((we) => we.Exercise?.name || "Unnamed Exercise")
+                        .join(", ")
                       : "No exercises yet"}
                   </p>
 
                   {/* Hover actions */}
                   <div className="flex justify-end mt-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <button className="px-4 py-2 text-sm rounded-xl font-medium border transition-colors duration-300">
+                    <button
+                      onClick={() => viewDetails(w)}
+                      className="px-4 py-2 text-sm rounded-xl font-medium border transition-colors duration-300">
                       View Details
                     </button>
                   </div>
