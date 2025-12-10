@@ -1,10 +1,9 @@
 import { handleError } from "@/components/error-handle";
-import { PrismaClient } from "@/generated/prisma";
 import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
-const prisma = new PrismaClient();
 
 // Helper to get session
 async function getSession() {
@@ -53,7 +52,7 @@ export async function GET() {
           totalWorkouts: entries.length,
           avgWeight:
             entries.reduce((sum, e) => sum + (e.weight ?? 0), 0) /
-              entries.filter((e) => e.weight != null).length || null,
+            entries.filter((e) => e.weight != null).length || null,
           totalCaloriesBurned: entries.reduce(
             (sum, e) => sum + (e.caloriesBurned ?? 0),
             0
@@ -123,10 +122,10 @@ export async function POST(req: Request) {
 
       const diffDays = lastWorkoutDate
         ? Math.floor(
-            (startOfToday.getTime() -
-              new Date(lastWorkoutDate.setHours(0, 0, 0, 0)).getTime()) /
-              (1000 * 60 * 60 * 24)
-          )
+          (startOfToday.getTime() -
+            new Date(lastWorkoutDate.setHours(0, 0, 0, 0)).getTime()) /
+          (1000 * 60 * 60 * 24)
+        )
         : Infinity;
 
       if (diffDays === 1) {

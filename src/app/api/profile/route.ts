@@ -1,9 +1,7 @@
-import { PrismaClient } from "@/generated/prisma";
 import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
 import { profileSchema } from "@/lib/validation";
 import { NextRequest, NextResponse } from "next/server";
-
-const prisma = new PrismaClient();
 
 async function getSession(req: NextRequest) {
   return await auth.api.getSession({ headers: req.headers });

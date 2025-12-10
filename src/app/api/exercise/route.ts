@@ -1,11 +1,9 @@
 import { handleError } from "@/components/error-handle";
-import { PrismaClient } from "@/generated/prisma";
 import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
 import { exerciseSchema } from "@/lib/validation";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-
-const prisma = new PrismaClient();
 
 // 🧠 GET: Fetch all exercises + stats (total lifts, average reps)
 export async function GET() {
