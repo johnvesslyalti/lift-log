@@ -1,3 +1,4 @@
+//src/app/api/profile/route.ts
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { profileSchema } from "@/lib/validation";
