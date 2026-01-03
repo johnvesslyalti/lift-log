@@ -3,6 +3,7 @@
 import HandleLogout from "@/components/handle-logout";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useUserStore } from "@/store/userStore";
+import EditProfileDialog from "@/components/edit-profile-dialog";
 import Image from "next/image";
 import MissingProfileDataPrompt from "@/components/missing-profile-data-prompt";
 import { useEffect, useState } from "react";
@@ -83,11 +84,12 @@ export default function Profile() {
       </div>
 
       {/* User Info */}
-      <div className="text-center mb-6">
+      <div className="text-center mb-6 relative">
         <h1 className="text-2xl font-bold mb-1">
           Hello, {user.name ?? "User"}!
         </h1>
-        <p className="text-gray-400">{user.email}</p>
+        <p className="text-gray-400 mb-4">{user.email}</p>
+        <EditProfileDialog />
       </div>
 
       {/* Stats */}
