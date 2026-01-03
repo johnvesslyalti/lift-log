@@ -1,3 +1,4 @@
+// /src/app/LandingPage.tsx (or /src/app/page.tsx, depending on your setup)
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -11,6 +12,13 @@ import Features from "@/components/landing-page/features";
 import Pricing from "@/components/landing-page/pricing";
 import CTASection from "@/components/landing-page/cta-section";
 
+// Define the expected structure of the user data from /api/profile
+interface UserProfile {
+  height: number | null;
+  weight: number | null;
+  // You might need other fields here depending on your profile API
+}
+
 export default function LandingPage() {
   // Hooks must be unconditional and at the top
   const { data: session, isPending } = authClient.useSession();
@@ -19,26 +27,44 @@ export default function LandingPage() {
 
   useEffect(() => {
     if (isPending) return;
+    // Only proceed if the user is authenticated
     if (!session?.user) return;
 
     const redirectUser = async () => {
       try {
+        // Fetch the user's profile data from your API route
         const res = await fetch("/api/profile", { credentials: "include" });
-        if (!res.ok) throw new Error("Failed to fetch user data");
-        router.replace("/dashboard");
+
+        if (!res.ok) {
+          // If the status is 404 (User not found) or another error
+          throw new Error("Failed to fetch user data");
+        }
+
+        // Parse the JSON body to get the profile metrics
+        const userData: UserProfile = await res.json();
+
+        // Conditional Redirection Logic:
+        // If both height and weight are present, redirect to the dashboard.
+        if (userData.height && userData.weight) {
+          router.replace("/dashboard");
+        } else {
+          // If either height or weight is missing, redirect to the metrics setup page.
+          router.replace("/metrics");
+        }
       } catch (err) {
         console.error("Error fetching user profile:", err);
+        // Set an error state if fetching fails after the user is authenticated
         if (session?.user) setError("Something went wrong. Please try again.");
       }
     };
 
     void redirectUser();
-  }, [session, isPending, router]); // Hooks must be called in same order every render [web:21][web:72]
+  }, [session, isPending, router]);
 
-  // Motion values created unconditionally (don’t gate hooks)
+  // Motion values created unconditionally
   const { scrollY } = useScroll();
   const blobY = useTransform(scrollY, [0, 400], [0, 40]);
-  const blobRotate = useTransform(scrollY, [0, 400], [0, 8]); // Easing accepts named strings or cubic-bezier tuples in Motion [web:38][web:26]
+  const blobRotate = useTransform(scrollY, [0, 400], [0, 8]);
 
   const showLoading = isPending;
   const showError = !isPending && error;

@@ -4,6 +4,7 @@ import HandleLogout from "@/components/handle-logout";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useUserStore } from "@/store/userStore";
 import Image from "next/image";
+import MissingProfileDataPrompt from "@/components/missing-profile-data-prompt";
 import { useEffect, useState } from "react";
 
 interface StreakData {
@@ -64,6 +65,7 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen p-6 flex flex-col items-center">
+      <MissingProfileDataPrompt />
       {/* Profile Image */}
       <div className="relative w-40 h-40 mb-4">
         {user.image ? (

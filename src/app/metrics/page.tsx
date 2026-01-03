@@ -52,7 +52,7 @@ export default function MetricsOnboardingPage() {
             </motion.div>
 
             <motion.div variants={itemVariants} className="mt-8">
-                <Link href="/dashboard" passHref legacyBehavior>
+                <Link href="/dashboard" passHref>
                     <Button
                         variant="link"
                         className="text-gray-400 hover:text-gray-200"
